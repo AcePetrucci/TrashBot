@@ -1,0 +1,24 @@
+{
+  "name": "trash-bot",
+  "version": "1.0.0",
+  "description": "Trash Bot made by Ace for trash servers",
+  "main": "src/index.ts",
+  "scripts": {
+    "start": "nodemon src/app/index.js",
+    "watch": "tsc -p tsconfig.json -w"
+  },
+  "keywords": [],
+  "author": "Lucimus Ace",
+  "license": "ISC",
+  "dependencies": {
+    "@types/node": "^13.1.6",
+    "codelyzer": "^5.2.1",
+    "discord.js": "^11.5.1",
+    "dotenv": "^8.2.0",
+    "inversify": "^5.0.1",
+    "nodemon": "^2.0.2",
+    "reflect-metadata": "^0.1.13",
+    "tslint": "^5.20.1",
+    "typescript": "^3.7.4"
+  }
+}
