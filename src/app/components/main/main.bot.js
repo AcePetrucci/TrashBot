@@ -16,11 +16,14 @@ const discord_js_1 = require("discord.js");
 const inversify_1 = require("inversify");
 const types_1 = require("../../../config/typings/types");
 const logger_1 = require("../../utils/logger/logger");
-// import { MessageHandler } from 'src/app/core/services/message-handler';
+const message_handler_service_1 = require("../../core/services/message-handler/message-handler.service");
+const ready_handler_service_1 = require("../../core/services/ready-handler/ready-handler.service");
 let TrashBot = class TrashBot {
-    constructor(client, token) {
+    constructor(client, token, messageHandler, readyHandler) {
         this.client = client;
         this.token = token;
+        this.messageHandler = messageHandler;
+        this.readyHandler = readyHandler;
     }
     listen() {
         this.client.on('message', (message) => {
@@ -28,6 +31,14 @@ let TrashBot = class TrashBot {
             if (message.author.bot) {
                 return false;
             }
+            setTimeout(() => {
+                this.messageHandler.handleMessage(message).subscribe();
+            }, 2000);
+        });
+        this.client.on('ready', () => {
+            setTimeout(() => {
+                this.readyHandler.handleReady(this.client).subscribe();
+            }, 2000);
         });
         return this.client.login(this.token);
     }
@@ -36,7 +47,10 @@ TrashBot = __decorate([
     inversify_1.injectable(),
     __param(0, inversify_1.inject(types_1.TYPES.Client)),
     __param(1, inversify_1.inject(types_1.TYPES.Token)),
-    __metadata("design:paramtypes", [discord_js_1.Client, String])
+    __param(2, inversify_1.inject(types_1.TYPES.MessageHandler)),
+    __param(3, inversify_1.inject(types_1.TYPES.ReadyHandler)),
+    __metadata("design:paramtypes", [discord_js_1.Client, String, message_handler_service_1.MessageHandler,
+        ready_handler_service_1.ReadyHandler])
 ], TrashBot);
 exports.TrashBot = TrashBot;
 //# sourceMappingURL=main.bot.js.map

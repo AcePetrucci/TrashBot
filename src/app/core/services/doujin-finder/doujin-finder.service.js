@@ -7,14 +7,29 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const inversify_1 = require("inversify");
-const rxjs_1 = require("rxjs");
-let MessageHandler = class MessageHandler {
-    handleMessage(message) {
-        return rxjs_1.from(message.reply('Pog'));
+let DoujinFinderService = class DoujinFinderService {
+    constructor() {
+        this._max = 297270;
+        this._min = 20;
+    }
+    findDoujin() {
+        return this._doujinGenerator();
+    }
+    /**
+     * Doujin Generator
+     */
+    _doujinGenerator() {
+        return `https://nhentai.net/g/${this._generateCode()}/`;
+    }
+    /**
+     * Code Generator
+     */
+    _generateCode() {
+        return Math.floor(Math.random() * (this._max - this._min + 1) + this._min);
     }
 };
-MessageHandler = __decorate([
+DoujinFinderService = __decorate([
     inversify_1.injectable()
-], MessageHandler);
-exports.MessageHandler = MessageHandler;
-//# sourceMappingURL=message-handler.service.js.map
+], DoujinFinderService);
+exports.DoujinFinderService = DoujinFinderService;
+//# sourceMappingURL=doujin-finder.service.js.map

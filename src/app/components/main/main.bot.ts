@@ -1,23 +1,35 @@
-import { Client, Message } from 'discord.js';
+import { Client, Message, GuildChannel, TextChannel } from 'discord.js';
 import { inject, injectable } from 'inversify';
 
 import { TYPES } from '../../../config/typings/types';
 
 import { logMessage } from '../../utils/logger/logger';
 
-// import { MessageHandler } from 'src/app/core/services/message-handler';
+import { MessageHandler } from '../../core/services/message-handler/message-handler.service';
+import { ReadyHandler } from '../../core/services/ready-handler/ready-handler.service';
+
+import { tap, catchError } from 'rxjs/operators';
+import { of } from 'rxjs';
 
 @injectable()
 export class TrashBot {
+
   private client: Client;
   private readonly token: string;
 
+  private messageHandler: MessageHandler;
+  private readyHandler: ReadyHandler;
+
   constructor(
     @inject(TYPES.Client) client: Client,
-    @inject(TYPES.Token) token: string
+    @inject(TYPES.Token) token: string,
+    @inject(TYPES.MessageHandler) messageHandler: MessageHandler,
+    @inject(TYPES.ReadyHandler) readyHandler: ReadyHandler
   ) {
     this.client = client;
     this.token = token;
+    this.messageHandler = messageHandler;
+    this.readyHandler = readyHandler;
   }
 
   public listen(): Promise<string> {
@@ -25,8 +37,19 @@ export class TrashBot {
       logMessage(message);
 
       if (message.author.bot) { return false; }
+
+      setTimeout(() => {
+        this.messageHandler.handleMessage(message).subscribe();
+      }, 2000);
     });
+
+    this.client.on('ready', () => {
+      setTimeout(() => {
+        this.readyHandler.handleReady(this.client).subscribe();
+      }, 2000);
+    })
 
     return this.client.login(this.token);
   }
+
 }
