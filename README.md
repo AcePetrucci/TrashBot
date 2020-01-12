@@ -17,5 +17,7 @@ This bot was made with Discord.js, Typescript, RxJS, Functional Reactive Program
 # Docs
 
 Commands currently implemented:
-  `!trash` shows a placeholder message while there is no help/command list
-  `!trash scream $message` shows lordsD + speaker emojis with passed message but on caps lock
+
+`!trash` shows a placeholder message while there is no help/command list
+
+`!trash scream $message` shows lordsD + speaker emojis with passed message but on caps lock
