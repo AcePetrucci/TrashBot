@@ -20,10 +20,11 @@ const operators_1 = require("rxjs/operators");
 const doujin_finder_service_1 = require("../doujin-finder/doujin-finder.service");
 let ReadyHandler = class ReadyHandler {
     constructor(doujinFinderService) {
-        this._currentInterval = new rxjs_1.BehaviorSubject(10000);
+        this._dayMs = 1000 * 60 * 60 * 24;
         this._lastTimer = 0;
         this._incrementMs = 16000000;
-        this._dayMs = 1000 * 60 * 60 * 24;
+        this._generateTimer = () => Math.floor(Math.random() * this._dayMs + 1);
+        this._currentInterval = new rxjs_1.BehaviorSubject(this._generateTimer());
         this._doujinFinderService = doujinFinderService;
     }
     /**
@@ -33,13 +34,13 @@ let ReadyHandler = class ReadyHandler {
         return this._currentInterval.pipe(operators_1.switchMap(timer => this._sendDoujin(timer, client)));
     }
     _sendDoujin(currentInterval, client) {
-        return rxjs_1.interval(currentInterval).pipe(operators_1.switchMap(_ => this._prepareObservableChannel(client)), operators_1.map(channel => channel.send(this._doujinFinderService.findDoujin())), operators_1.tap(_ => this._dayTimer()));
+        return rxjs_1.interval(currentInterval).pipe(operators_1.tap(_ => console.log(currentInterval)), operators_1.switchMap(_ => this._prepareObservableChannel(client)), operators_1.map(channels => channels.map(channel => channel.send(this._doujinFinderService.findDoujin()))), operators_1.tap(_ => this._dayTimer()));
     }
     /**
      * Ready Observable
      */
     _prepareObservableChannel(client) {
-        return rxjs_1.defer(() => rxjs_1.from(this._findBotChannels(client)));
+        return rxjs_1.defer(() => rxjs_1.of(this._findBotChannels(client)));
     }
     /**
      * Get Bots Channels
@@ -53,7 +54,7 @@ let ReadyHandler = class ReadyHandler {
      * Day Timer
      */
     _dayTimer(needToIncrement = 0) {
-        const generatedTimer = Math.floor(Math.random() * this._dayMs + 1);
+        const generatedTimer = this._generateTimer();
         return (generatedTimer + this._lastTimer + needToIncrement) > this._dayMs
             ? this._currentInterval.next(generatedTimer)
             : this._dayTimer(needToIncrement + this._incrementMs);

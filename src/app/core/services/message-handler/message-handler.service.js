@@ -10,7 +10,10 @@ const inversify_1 = require("inversify");
 const rxjs_1 = require("rxjs");
 let MessageHandler = class MessageHandler {
     handleMessage(message) {
-        return rxjs_1.from(message.reply('Pog'));
+        if (message.content.toLowerCase().includes('pog')) {
+            return rxjs_1.from(message.reply('Pog'));
+        }
+        return rxjs_1.from(Promise.reject());
     }
 };
 MessageHandler = __decorate([

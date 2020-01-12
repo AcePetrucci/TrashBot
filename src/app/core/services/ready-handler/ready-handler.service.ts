@@ -13,13 +13,15 @@ import { DoujinFinderService } from '../doujin-finder/doujin-finder.service';
 @injectable()
 export class ReadyHandler {
 
-  private _currentInterval = new BehaviorSubject<number>(10000);
-
   private _doujinFinderService: DoujinFinderService;
+
+  private _dayMs = 1000 * 60 * 60 * 24;
   private _lastTimer = 0;
   private _incrementMs = 16000000;
 
-  private _dayMs = 1000 * 60 * 60 * 24;
+  private _generateTimer = () => Math.floor(Math.random() * this._dayMs + 1);
+  private _currentInterval = new BehaviorSubject<number>(this._generateTimer());
+
 
   constructor(
     @inject(TYPES.DoujinFinderService) doujinFinderService: DoujinFinderService
@@ -40,8 +42,9 @@ export class ReadyHandler {
 
   private _sendDoujin(currentInterval: number, client: Client) {
     return interval(currentInterval).pipe(
+      tap(_ => console.log(currentInterval)),
       switchMap(_ => this._prepareObservableChannel(client)),
-      map(channel => channel.send(this._doujinFinderService.findDoujin())),
+      map(channels => channels.map(channel => channel.send(this._doujinFinderService.findDoujin()))),
       tap(_ => this._dayTimer()),
     )
   }
@@ -52,7 +55,7 @@ export class ReadyHandler {
    */
 
   private _prepareObservableChannel(client: Client) {
-    return defer(() => from(this._findBotChannels(client)));
+    return defer(() => of(this._findBotChannels(client)));
   }
 
 
@@ -72,7 +75,7 @@ export class ReadyHandler {
    */
 
   private _dayTimer(needToIncrement = 0) {
-    const generatedTimer = Math.floor(Math.random() * this._dayMs + 1);
+    const generatedTimer = this._generateTimer();
 
     return (generatedTimer + this._lastTimer + needToIncrement) > this._dayMs
       ? this._currentInterval.next(generatedTimer)

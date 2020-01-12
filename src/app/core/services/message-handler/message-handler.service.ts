@@ -9,7 +9,11 @@ import { Observable, from, defer } from 'rxjs';
 export class MessageHandler {
   
   handleMessage(message: Message): Observable<Message | Message[]> {
-    return from(message.reply('Pog'));
+    if (message.content.toLowerCase().includes('pog')) {
+      return from(message.reply('Pog'));
+    }
+
+    return from(Promise.reject());
   }
 
 }
