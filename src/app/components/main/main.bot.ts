@@ -39,7 +39,7 @@ export class TrashBot {
       if (message.author.bot) { return false; }
 
       setTimeout(() => {
-        this.messageHandler.handleMessage(message).subscribe();
+        this.messageHandler.handleMessage(message, this.client).subscribe();
       }, 2000);
     });
 

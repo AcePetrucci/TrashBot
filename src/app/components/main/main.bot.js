@@ -32,7 +32,7 @@ let TrashBot = class TrashBot {
                 return false;
             }
             setTimeout(() => {
-                this.messageHandler.handleMessage(message).subscribe();
+                this.messageHandler.handleMessage(message, this.client).subscribe();
             }, 2000);
         });
         this.client.on('ready', () => {

@@ -9,9 +9,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const inversify_1 = require("inversify");
 const rxjs_1 = require("rxjs");
 let MessageHandler = class MessageHandler {
-    handleMessage(message) {
+    handleMessage(message, client) {
         if (message.content.toLowerCase().includes('pog')) {
-            return rxjs_1.from(message.reply('Pog'));
+            const pog = client.emojis.find(emoji => emoji.name === 'Pog');
+            return rxjs_1.from(message.channel.send(`${pog}`));
         }
         return rxjs_1.from(Promise.reject());
     }
