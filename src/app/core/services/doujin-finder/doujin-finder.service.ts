@@ -2,6 +2,11 @@ import { injectable } from 'inversify';
 
 import { tags } from '../../../utils/doujins/tags';
 
+import { of, from, defer } from 'rxjs';
+import { map, tap, switchMap, catchError } from 'rxjs/operators';
+
+import axios from 'axios';
+
 @injectable()
 export class DoujinFinderService {
 
@@ -17,6 +22,10 @@ export class DoujinFinderService {
     return this._doujinTagPageGenerator();
   }
 
+  findDoujinByTag(tag: string) {
+    return this._doujinByTagGenerator(tag).pipe(tap(console.log));
+  }
+
 
   /**
    * Doujin Generator
@@ -28,6 +37,10 @@ export class DoujinFinderService {
 
   private _doujinTagPageGenerator() {
     return `${this._doujinURL}/tag/${this._generateTag()}`;
+  }
+
+  private _doujinByTagGenerator(tag: string) {
+    return this._doujinPageTag(tag).pipe(map(id => `${this._doujinURL}/g/${id}`));
   }
 
   
@@ -46,6 +59,17 @@ export class DoujinFinderService {
 
   private _generateTag() {
     return tags[Math.floor(Math.random() * tags.length)];
+  }
+
+
+  /**
+   * Tag Doujin Search
+   */
+
+  private _doujinPageTag(tag: string) {
+    return defer(() => from(axios.get(`https://nhentai.net/api/galleries/search?query=${tag}`))).pipe(
+      map(res => res.data.result[Math.floor(Math.random() * res.data.result.length)].id),
+    );
   }
 
 }

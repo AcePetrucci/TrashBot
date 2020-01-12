@@ -34,7 +34,7 @@ let ReadyHandler = class ReadyHandler {
         return this._currentInterval.pipe(operators_1.switchMap(timer => this._sendDoujin(timer, client)));
     }
     _sendDoujin(currentInterval, client) {
-        return rxjs_1.interval(currentInterval).pipe(operators_1.tap(_ => console.log(currentInterval)), operators_1.switchMap(_ => this._prepareObservableChannel(client)), operators_1.map(channels => channels.map(channel => channel.send(this._doujinFinderService.findDoujin()))), operators_1.tap(_ => this._dayTimer()));
+        return rxjs_1.interval(currentInterval).pipe(operators_1.switchMap(_ => this._prepareObservableChannel(client)), operators_1.map(channels => channels.map(channel => channel.send(this._doujinFinderService.findDoujin()))), operators_1.tap(_ => this._dayTimer()));
     }
     /**
      * Ready Observable

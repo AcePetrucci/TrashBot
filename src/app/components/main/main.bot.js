@@ -35,12 +35,12 @@ let TrashBot = class TrashBot {
             }
             setTimeout(() => {
                 this.messageHandler.handleMessage(message, this.client).pipe(operators_1.catchError(err => rxjs_1.of(err))).subscribe();
-            }, 2000);
+            }, 1500);
         });
         this.client.on('ready', () => {
             setTimeout(() => {
                 this.readyHandler.handleReady(this.client).subscribe();
-            }, 2000);
+            }, 1500);
         });
         return this.client.login(this.token);
     }

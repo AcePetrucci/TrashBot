@@ -42,7 +42,6 @@ export class ReadyHandler {
 
   private _sendDoujin(currentInterval: number, client: Client) {
     return interval(currentInterval).pipe(
-      tap(_ => console.log(currentInterval)),
       switchMap(_ => this._prepareObservableChannel(client)),
       map(channels => channels.map(channel => channel.send(this._doujinFinderService.findDoujin()))),
       tap(_ => this._dayTimer()),

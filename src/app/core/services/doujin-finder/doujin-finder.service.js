@@ -8,6 +8,9 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 Object.defineProperty(exports, "__esModule", { value: true });
 const inversify_1 = require("inversify");
 const tags_1 = require("../../../utils/doujins/tags");
+const rxjs_1 = require("rxjs");
+const operators_1 = require("rxjs/operators");
+const axios_1 = require("axios");
 let DoujinFinderService = class DoujinFinderService {
     constructor() {
         this._doujinURL = 'https://nhentai.net';
@@ -20,6 +23,9 @@ let DoujinFinderService = class DoujinFinderService {
     findTagPage() {
         return this._doujinTagPageGenerator();
     }
+    findDoujinByTag(tag) {
+        return this._doujinByTagGenerator(tag).pipe(operators_1.tap(console.log));
+    }
     /**
      * Doujin Generator
      */
@@ -28,6 +34,9 @@ let DoujinFinderService = class DoujinFinderService {
     }
     _doujinTagPageGenerator() {
         return `${this._doujinURL}/tag/${this._generateTag()}`;
+    }
+    _doujinByTagGenerator(tag) {
+        return this._doujinPageTag(tag).pipe(operators_1.map(id => `${this._doujinURL}/g/${id}`));
     }
     /**
      * Code Generator
@@ -40,6 +49,12 @@ let DoujinFinderService = class DoujinFinderService {
      */
     _generateTag() {
         return tags_1.tags[Math.floor(Math.random() * tags_1.tags.length)];
+    }
+    /**
+     * Tag Doujin Search
+     */
+    _doujinPageTag(tag) {
+        return rxjs_1.defer(() => rxjs_1.from(axios_1.default.get(`https://nhentai.net/api/galleries/search?query=${tag}`))).pipe(operators_1.map(res => res.data.result[Math.floor(Math.random() * res.data.result.length)].id));
     }
 };
 DoujinFinderService = __decorate([
