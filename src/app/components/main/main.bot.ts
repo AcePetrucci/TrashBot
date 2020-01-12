@@ -44,6 +44,8 @@ export class TrashBot {
     });
 
     this.client.on('ready', () => {
+      this.client.user.setGame('POGGIES');
+
       setTimeout(() => {
         this.readyHandler.handleReady(this.client).subscribe();
       }, 1500);
