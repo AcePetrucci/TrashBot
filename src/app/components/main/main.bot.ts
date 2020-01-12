@@ -3,8 +3,6 @@ import { inject, injectable } from 'inversify';
 
 import { TYPES } from '../../../config/typings/types';
 
-import { logMessage } from '../../utils/logger/logger';
-
 import { MessageHandler } from '../../core/services/message-handler/message-handler.service';
 import { ReadyHandler } from '../../core/services/ready-handler/ready-handler.service';
 
@@ -33,23 +31,39 @@ export class TrashBot {
   }
 
   public listen(): Promise<string> {
-    this.client.on('message', (message: Message) => {
-      logMessage(message);
 
+
+    /**
+     * Listen to messages
+     */
+
+    this.client.on('message', (message: Message) => {
       if (message.author.bot) { return false; }
 
       setTimeout(() => {
-        this.messageHandler.handleMessage(message, this.client).pipe(catchError(err => of(err))).subscribe();
+        this.messageHandler.handleMessage(message, this.client).pipe(
+          catchError(err => of(err))
+        ).subscribe();
       }, 1500);
     });
 
+
+    /**
+     * Listen to ready
+     */
+
     this.client.on('ready', () => {
-      this.client.user.setGame('POGGIES');
+      this.client.user.setActivity('POGGIES');
 
       setTimeout(() => {
         this.readyHandler.handleReady(this.client).subscribe();
       }, 1500);
     })
+
+
+    /**
+     * Login
+     */
 
     return this.client.login(this.token);
   }
