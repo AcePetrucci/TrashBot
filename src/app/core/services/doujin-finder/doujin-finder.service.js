@@ -7,25 +7,39 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const inversify_1 = require("inversify");
+const tags_1 = require("../../../utils/doujins/tags");
 let DoujinFinderService = class DoujinFinderService {
     constructor() {
+        this._doujinURL = 'https://nhentai.net';
         this._max = 297270;
         this._min = 20;
     }
     findDoujin() {
         return this._doujinGenerator();
     }
+    findTagPage() {
+        return this._doujinTagPageGenerator();
+    }
     /**
      * Doujin Generator
      */
     _doujinGenerator() {
-        return `https://nhentai.net/g/${this._generateCode()}/`;
+        return `${this._doujinURL}/g/${this._generateCode()}`;
+    }
+    _doujinTagPageGenerator() {
+        return `${this._doujinURL}/tag/${this._generateTag()}`;
     }
     /**
      * Code Generator
      */
     _generateCode() {
         return Math.floor(Math.random() * (this._max - this._min + 1) + this._min);
+    }
+    /**
+     * Tag Generator
+     */
+    _generateTag() {
+        return tags_1.tags[Math.floor(Math.random() * tags_1.tags.length)];
     }
 };
 DoujinFinderService = __decorate([
