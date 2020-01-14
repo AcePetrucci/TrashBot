@@ -28,5 +28,6 @@ container.bind<NhCommandsService>(TYPES.NhCommandsService).to(NhCommandsService)
 
 container.bind<Client>(TYPES.Client).toConstantValue(new Client());
 container.bind<string>(TYPES.Token).toConstantValue(process.env.TOKEN);
+container.bind<string>(TYPES.DoujinUrl).toConstantValue(process.env.DOUJIN_URL);
 
 export default container;
