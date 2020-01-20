@@ -35,7 +35,7 @@ export class NhCommandsService {
 
     switch (true) {
       case this._lastSentMessage === '!nh':
-        return this._nhHelp(message);
+        return this._nhHelp(message, client);
 
       case this._lastSentMessage.includes('tag'):
         return this._nhRandomTag(message);
@@ -50,10 +50,30 @@ export class NhCommandsService {
    * NH Help
    */
 
-  private _nhHelp(message: Message) {
-    const pepeS = this._findEmoji('PepeS');
+  private _nhHelp(message: Message, client: Client) {
+    const peepoSmart = this._findEmoji('peepoSmart');
 
-    return defer(() => from(message.reply(`Help will come, someday, sometime ${pepeS}`)));
+    return defer(() => from(message.channel.send({embed: {
+      color: 0xec407a,
+      author: {
+        name: client.user.username,
+        icon_url: client.user.avatarURL
+      },
+      title: `${peepoSmart} TrashBot NH Help ${peepoSmart}`,
+      fields: [
+        {
+          name: 'Commands',
+          value: `
+            **!nh tag**
+            Search for a random NH tag and return it's page.
+            
+            **!nh <tag_names>**
+            Ex: *!nh yuri english*
+            Search for a specific tag and return a random doujin which contains the specified tag(s).
+          `,
+        },
+      ]
+    }})))
   }
 
 

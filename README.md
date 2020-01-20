@@ -4,20 +4,24 @@ A Discord Server bot I made for me and my friends, but even so, written like a r
 
 This bot was made with Discord.js, Typescript, RxJS, Functional Reactive Programming and Dependency Injection with Inversify.
 
-## Install
-    npm i
+It currently needs the [TrashBotAPI](https://github.com/AcePetrucci/TrashBotAPI) to be run alongside it locally, seeing that I've yet to upload them to a cloud server (but at least the DB is on the cloud already).
 
-## Watch
-    npm run watch
+## Built With
+ - Typescript 3.7
+ - [Discord.js](https://github.com/discordjs/discord.js)
+ - [RxJS](https://rxjs-dev.firebaseapp.com)
+ - [InversifyJS](https://github.com/inversify/InversifyJS)
 
-## Run the bot
-    npm run start
+## Installation
+```bash
+$ npm i
+```
 
+## Running the Bot
+```bash
+# watch
+$ npm run watch
 
-# Docs
-
-Commands currently implemented:
-
-`!trash` shows a placeholder message while there is no help/command list
-
-`!trash scream $message` shows lordsD + speaker emojis with passed message but on caps lock
+# start nodemon
+$ npm run start
+```
