@@ -2,7 +2,7 @@ import 'reflect-metadata';
 import { Container } from 'inversify';
 import { Client } from 'discord.js';
 
-import { TYPES } from '../typings/types';
+import TYPES from '../types/types';
 
 import { TrashBot } from '../../app/components/main/main.bot';
 

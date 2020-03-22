@@ -2,7 +2,7 @@ import { injectable, inject } from 'inversify';
 
 import { tags } from '../../../utils/doujins/tags';
 
-import { TYPES } from '../../../../config/typings/types';
+import TYPES from '../../../../config/types/types';
 
 import { of, from, defer, Observable } from 'rxjs';
 import { map, tap, switchMap, catchError } from 'rxjs/operators';

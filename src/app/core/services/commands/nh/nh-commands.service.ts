@@ -1,7 +1,7 @@
 import { Message, Client } from 'discord.js';
 import { inject, injectable } from 'inversify';
 
-import { TYPES } from '../../../../../config/typings/types';
+import TYPES from '../../../../../config/types/types';
 
 import { from, defer } from 'rxjs';
 import { switchMap, catchError } from 'rxjs/operators';

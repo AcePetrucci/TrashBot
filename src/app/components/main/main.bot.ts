@@ -1,7 +1,7 @@
 import { Client, Message, GuildChannel, TextChannel } from 'discord.js';
 import { inject, injectable } from 'inversify';
 
-import { TYPES } from '../../../config/typings/types';
+import TYPES from '../../../config/types/types';
 
 import { MessageHandler } from '../../core/services/message-handler/message-handler.service';
 import { ReadyHandler } from '../../core/services/ready-handler/ready-handler.service';
@@ -14,6 +14,7 @@ export class TrashBot {
 
   private client: Client;
   private readonly token: string;
+  private doujin: any;
 
   private messageHandler: MessageHandler;
   private readyHandler: ReadyHandler;
@@ -22,12 +23,14 @@ export class TrashBot {
     @inject(TYPES.Client) client: Client,
     @inject(TYPES.Token) token: string,
     @inject(TYPES.MessageHandler) messageHandler: MessageHandler,
-    @inject(TYPES.ReadyHandler) readyHandler: ReadyHandler
+    @inject(TYPES.ReadyHandler) readyHandler: ReadyHandler,
+    @inject(TYPES.DoujinUrl) doujin: any
   ) {
     this.client = client;
     this.token = token;
     this.messageHandler = messageHandler;
     this.readyHandler = readyHandler;
+    this.doujin = doujin;
   }
 
   public listen(): Promise<string> {

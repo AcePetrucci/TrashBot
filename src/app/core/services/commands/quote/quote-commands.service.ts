@@ -8,7 +8,7 @@ import { findEmoji } from '../../../../utils/emojis/emojis';
 import { formatQuote, sendQuote } from '../../../../utils/quotes/quotes';
 import { sendError } from '../../../../utils/errors/errors';
 
-import { TYPES } from '../../../../../config/typings/types';
+import TYPES from '../../../../../config/types/types';
 
 import axios from 'axios';
 
