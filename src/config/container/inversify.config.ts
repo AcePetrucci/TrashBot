@@ -15,6 +15,7 @@ import { ScreamCommandsService } from '../../app/core/services/commands/scream/s
 import { NhCommandsService } from '../../app/core/services/commands/nh/nh-commands.service';
 import { QuoteCommandsService } from '../../app/core/services/commands/quote/quote-commands.service';
 import { AddQuoteCommandsService } from '../../app/core/services/commands/addquote/addquote-commands.service';
+import { AsciiCommandsService } from '../../app/core/services/commands/ascii/ascii-commands.service';
 
 const container = new Container();
 
@@ -29,6 +30,7 @@ container.bind<ScreamCommandsService>(TYPES.ScreamCommandsService).to(ScreamComm
 container.bind<NhCommandsService>(TYPES.NhCommandsService).to(NhCommandsService).inSingletonScope();
 container.bind<QuoteCommandsService>(TYPES.QuoteCommandsService).to(QuoteCommandsService).inSingletonScope();
 container.bind<AddQuoteCommandsService>(TYPES.AddQuoteCommandsService).to(AddQuoteCommandsService).inSingletonScope();
+container.bind<AsciiCommandsService>(TYPES.AsciiCommandsService).to(AsciiCommandsService).inSingletonScope();
 
 container.bind<Client>(TYPES.Client).toConstantValue(new Client());
 container.bind<string>(TYPES.Token).toConstantValue(process.env.TOKEN);
