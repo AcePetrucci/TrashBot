@@ -1,5 +1,5 @@
 {
-  "name": "trash-bot",
+  "name": "trashbot",
   "version": "1.0.0",
   "description": "Trash Bot made by Ace for trash servers",
   "main": "src/index.ts",
