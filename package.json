@@ -6,9 +6,9 @@
   "scripts": {
     "start": "node src/app/index.js",
     "start:watch": "nodemon src/app/index.js",
-    "start:prod": "NODE_ENV=production node src/app/index.js",
-    "start:watchprod": "NODE_ENV=production nodemon src/app/index.js",
-    "compile": "tsc -p tsconfig.json"
+    "compile": "tsc -p tsconfig.json",
+    "compile:watch": "tsc -p tsconfig.json -w",
+    "build": "npm run compile && npm run start"
   },
   "keywords": [],
   "author": "Lucimus Ace",

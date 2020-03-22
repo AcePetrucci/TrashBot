@@ -19,9 +19,12 @@ $ npm i
 
 ## Running the Bot
 ```bash
-# watch
-$ npm run watch
+# watch and compile ts to js
+$ npm run compile:watch
 
-# start nodemon
-$ npm run start
+# watch nodemon
+$ npm run start:watch
+
+# build
+$ npm run build
 ```
