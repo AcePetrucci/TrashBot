@@ -111,3 +111,5 @@ dist
 **/*.js
 **/*.js.map
 .now
+
+package-lock.json
