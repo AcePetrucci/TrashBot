@@ -51,6 +51,9 @@ export class MessageHandler {
       case message.content.includes('!quote'):
         return this._quoteCommandsServices.showQuoteCommands(message, client);
 
+      case message.content.includes('!quotelist'):
+          return this._quoteCommandsServices.showQuoteCommands(message, client);
+
       case message.content.includes('!addquote'):
         return this._addQuoteCommandsServices.addQuoteCommands(message, client);
 

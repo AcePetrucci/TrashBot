@@ -41,6 +41,9 @@ export class QuoteCommandsService {
       case (message.content === '!quote'):
         return this._getRandomQuote(message, client);
 
+      case (message.content === '!quotelist'):
+        return this._getQuoteList(message, client);
+
       case (isNaN(+message.content.slice(7))):
         return this._getQuoteByText(message, client);
 
@@ -141,6 +144,9 @@ export class QuoteCommandsService {
 
             **!quote -h**
             Shows the quote help panel (this one right here).
+
+            **!quotelist**
+            Shows the quotelist of the server.
             
             **!quote <quote_index>**
             Ex: *!quote 1*
@@ -153,6 +159,41 @@ export class QuoteCommandsService {
         },
       ]
     }})))
+  }
+
+
+  /**
+   * Get Quote List
+   */
+
+  private _getQuoteList(message: Message, client: Client) {
+    return defer(() => from(axios.post(this._quoteAPIUrl, {
+      query: `query {
+        findAllQuotes(guildID: "${this._guildID}") {
+          authorID,
+          quote,
+          indexNum,
+          createdAt
+        }
+      }`,
+    })).pipe(
+      map(({data: {data: {findAllQuotes: quotes}}}) => this._createQuoteList(quotes, message)),
+      switchMap(quoteList => this._formatQuoteList(quoteList.join('\n\n'), client, message)),
+      catchError(err => sendError('It seems this server has no quotes saved yet. Type *!addquote* to see how to add one.', message, client))
+    ))
+  }
+
+
+  private _createQuoteList(quotes, message: Message) {
+    return quotes.map(quote => {
+      const author = message.guild.members.find(member => member.user.id === quote.authorID);
+
+      return `#${quote.indexNum}: ${quote.quote} - ${author?.nickname ?? author?.user.username} - ${new Date(quote.createdAt).toLocaleDateString()}`;
+    })
+  }
+
+  private _formatQuoteList(quoteList, client: Client, message: Message) {
+    return message.author.send(`\`\`\`*** ${message.guild.name.toUpperCase()} QUOTE LIST *** \n \n \n${quoteList}\`\`\``);
   }
 
 }
