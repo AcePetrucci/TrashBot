@@ -15,7 +15,8 @@ const TYPES = {
   NhCommandsService: Symbol('NhCommandsService'),
   QuoteCommandsService: Symbol('QuoteCommandsService'),
   AddQuoteCommandsService: Symbol('AddQuoteCommandsService'),
-  AsciiCommandsService: Symbol('AsciiCommandsService')
+  AsciiCommandsService: Symbol('AsciiCommandsService'),
+  CustomCommandsService: Symbol('CustomCommandsService'),
 }
 
 export default TYPES;

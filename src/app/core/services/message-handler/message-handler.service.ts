@@ -12,6 +12,8 @@ import { AsciiCommandsService } from '../commands/ascii/ascii-commands.service';
 import { QuoteCommandsService } from '../commands/quote/quote-commands.service';
 import { AddQuoteCommandsService } from '../commands/addquote/addquote-commands.service';
 
+import { CustomCommandsService } from '../commands/custom/custom-commands.service';
+
 @injectable()
 export class MessageHandler {
 
@@ -20,6 +22,7 @@ export class MessageHandler {
   private _screamCommandsService: ScreamCommandsService;
   private _nhCommandsService: NhCommandsService;
   private _asciiCommandsService: AsciiCommandsService;
+  private _customCommandsService: CustomCommandsService;
 
   constructor(
     @inject(TYPES.ScreamCommandsService) screamCommandsService: ScreamCommandsService,
@@ -27,12 +30,14 @@ export class MessageHandler {
     @inject(TYPES.QuoteCommandsService) quoteCommandsService: QuoteCommandsService,
     @inject(TYPES.AddQuoteCommandsService) addQuoteCommandsService: AddQuoteCommandsService,
     @inject(TYPES.AsciiCommandsService) asciiCommandsService: AsciiCommandsService,
+    @inject(TYPES.CustomCommandsService) customCommandsService: CustomCommandsService,
   ) {
     this._screamCommandsService = screamCommandsService;
     this._nhCommandsService = nhCommandsService;
     this._quoteCommandsServices = quoteCommandsService;
     this._addQuoteCommandsServices = addQuoteCommandsService;
     this._asciiCommandsService = asciiCommandsService;
+    this._customCommandsService = customCommandsService;
   }
 
 
@@ -59,6 +64,12 @@ export class MessageHandler {
 
       case message.content.includes('!ascii'):
         return this._asciiCommandsService.asciiCommands(message, client);
+
+      case message.content.includes('!addcommand'):
+        return this._customCommandsService.addCustomCommandsHandler(message, client);
+
+      case message.content.startsWith('!'):
+        return this._customCommandsService.getCustomCommandsHandler(message, client);
 
       default:
         return defer(() => from(Promise.reject()));

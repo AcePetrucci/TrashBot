@@ -11,4 +11,4 @@ const trashBot = container.get<TrashBot>(TYPES.TrashBot);
 const server = http.createServer();
 
 trashBot.listen().then(() => console.log('Logged in!')).catch((error) => console.log('RIP', error));
-server.listen(3000);
+server.listen(4000);

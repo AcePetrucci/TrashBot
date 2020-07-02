@@ -28,10 +28,10 @@ export class ScreamCommandsService {
    * Scream
    */
 
-  private _trashScream(message: Message) {
+  private _trashScream(message: Message, fixedMsg?: string) {
     const lordsD = this._findEmoji('lordsD');
     const speaker = '\:loudspeaker:';
-    const msgToScream = message.content.slice(8);
+    const msgToScream = fixedMsg ?? message.content.slice(8);
 
     return defer(() => from(message.channel.send(`${lordsD} ${speaker}  ${msgToScream.toUpperCase()}`)));
   }
