@@ -33,6 +33,8 @@ export class ScreamCommandsService {
     const speaker = '\:loudspeaker:';
     const msgToScream = fixedMsg ?? message.content.slice(8);
 
+    message.delete();
+
     return defer(() => from(message.channel.send(`${lordsD} ${speaker}  ${msgToScream.toUpperCase()}`)));
   }
 
