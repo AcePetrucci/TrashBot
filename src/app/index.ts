@@ -14,4 +14,4 @@ const server = http.createServer((req, res) => {
 });
 
 trashBot.listen().then(() => console.log('Logged in!')).catch((error) => console.log('RIP', error));
-server.listen(4444);
+server.listen(process.env.PORT || 4444);
