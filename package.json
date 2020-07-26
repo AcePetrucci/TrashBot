@@ -8,7 +8,7 @@
     "start:watch": "nodemon src/app/index.js",
     "compile": "tsc -p tsconfig.json",
     "compile:watch": "tsc -p tsconfig.json -w",
-    "build": "npm run compile && npm run start"
+    "build": "npm run compile"
   },
   "keywords": [],
   "author": "Lucimus Ace",
