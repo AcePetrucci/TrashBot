@@ -85,7 +85,6 @@ export class CustomCommandsService {
         }
       }`,
     })).pipe(
-      tap(_ => message.delete()),
       map(({data: {data: {createCommand: quote}}}) => formatQuote(`Command !${quote.commandName} has been created.`)),
       switchMap(quote => sendQuote(quote, message, client)),
       catchError(err => sendError('Could not create the command. Are you sure you followed the guidelines?', message, client))
@@ -94,8 +93,6 @@ export class CustomCommandsService {
 
   private _addCustomCommandHelp(message: Message, client: Client) {
     const peepoSmart = this._findEmoji('peepoSmart');
-
-    message.delete();
 
     return defer(() => from(message.channel.send({embed: {
       color: 0xec407a,
@@ -138,7 +135,6 @@ export class CustomCommandsService {
         findCommand(commandName: "${message.content.slice(1)}", guildID: "${this._guildID}") { commandText }
       }`,
     })).pipe(
-      tap(_ => message.delete()),
       switchMap(({data: {data: {findCommand: command}}}) => message.channel.send(command.commandText)),
       catchError(err => sendError('There was an error trying to fetch this command. Are you sure it does exist?', message, client))
     ));
@@ -162,7 +158,6 @@ export class CustomCommandsService {
         }
       }`,
     })).pipe(
-      tap(_ => message.delete()),
       map(({data: {data: {deleteByNameCommand: command}}}) => formatQuote(`Command !${command.commandName} has been deleted.`)),
       switchMap(quote => sendQuote(quote, message, client)),
       catchError(err => sendError('Could not delete the command. Did you get the command name right?', message, client))

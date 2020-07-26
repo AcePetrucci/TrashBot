@@ -63,6 +63,10 @@ export class TrashBot {
       }, 1500);
     })
 
+    this.client.on('error', error => {
+      console.error('Websocket connection error');
+    })
+
 
     /**
      * Login

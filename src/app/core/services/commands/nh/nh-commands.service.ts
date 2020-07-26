@@ -34,10 +34,10 @@ export class NhCommandsService {
     this._lastSentMessage = message.content.toLowerCase();
 
     switch (true) {
-      case this._lastSentMessage === '!nh':
+      case this._lastSentMessage === '!nh -h':
         return this._nhHelp(message, client);
 
-      case this._lastSentMessage.includes('tag'):
+      case (this._lastSentMessage === '!nh' || this._lastSentMessage.includes('tag')):
         return this._nhRandomTag(message);
 
       default:
@@ -64,7 +64,7 @@ export class NhCommandsService {
         {
           name: 'Commands',
           value: `
-            **!nh tag**
+            **!nh**
             Search for a random NH tag and return it's page.
             
             **!nh <tag_names>**
