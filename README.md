@@ -26,5 +26,3 @@ $ npm run start:watch
 # build
 $ npm run build
 ```
-
-[![Run on Repl.it](https://repl.it/badge/github/AcePetrucci/TrashBot)](https://repl.it/github/AcePetrucci/TrashBot)
