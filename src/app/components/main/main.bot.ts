@@ -56,7 +56,7 @@ export class TrashBot {
      */
 
     this.client.on('ready', () => {
-      this.client.user.setActivity('POGGIES');
+      this.client.user.setActivity('!trash or !trash -h');
 
       setTimeout(() => {
         this.readyHandler.handleReady(this.client).subscribe();

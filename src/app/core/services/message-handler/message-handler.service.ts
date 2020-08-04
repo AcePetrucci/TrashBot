@@ -14,6 +14,8 @@ import { AddQuoteCommandsService } from '../commands/addquote/addquote-commands.
 
 import { CustomCommandsService } from '../commands/custom/custom-commands.service';
 
+import { findEmoji } from '../../../utils/emojis/emojis';
+
 @injectable()
 export class MessageHandler {
 
@@ -68,6 +70,9 @@ export class MessageHandler {
       case message.content.includes('!addcommand'):
         return this._customCommandsService.addCustomCommandsHandler(message, client);
 
+      case (message.content.includes('!trash') || message.content.includes('!trash -h')):
+        return this._trashHelp(message, client);
+
       case message.content.startsWith('!'):
         return this._customCommandsService.getCustomCommandsHandler(message, client);
 
@@ -75,6 +80,42 @@ export class MessageHandler {
         return defer(() => from(Promise.reject()));
 
     }
+  }
+
+
+  /**
+   * TrashHelp
+   */
+
+  private _trashHelp(message: Message, client: Client): Observable<Message | Message[]> {
+    const peepoSmart = findEmoji(client)('peepoSmart');
+
+    return defer(() => from(message.channel.send({embed: {
+      color: 0xec407a,
+      author: {
+        name: client.user.username,
+        icon_url: client.user.avatarURL
+      },
+      title: `${peepoSmart} TrashBot Help ${peepoSmart}`,
+      fields: [
+        {
+          name: 'TrashBot Help',
+          value: `
+            **!addquote -h**
+            Shows the addquote help panel.
+
+            **!quote -h**
+            Shows the quote help panel.
+
+            **!addcommand -h**
+            Shows the custom commands help panel.
+
+            **!nh -h**
+            Shows the NH help panel.
+          `,
+        },
+      ]
+    }})))
   }
 
 }
