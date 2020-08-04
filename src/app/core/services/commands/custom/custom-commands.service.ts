@@ -59,7 +59,7 @@ export class CustomCommandsService {
       case (message.content.includes('!dcommand')):
         return this._deleteCustomCommand(message, client);
 
-      case (message.content === '!'):
+      case (message.content === '!' || message.content.includes('!!')):
         return;
 
       default:
