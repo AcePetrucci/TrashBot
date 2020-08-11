@@ -139,7 +139,7 @@ export class CustomCommandsService {
       }`,
     })).pipe(
       switchMap(({data: {data: {findCommand: command}}}) => message.channel.send(command.commandText)),
-      catchError(err => err)
+      catchError(err => Promise.reject())
     ));
   }
 
