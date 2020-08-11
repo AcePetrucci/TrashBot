@@ -139,7 +139,7 @@ export class CustomCommandsService {
       }`,
     })).pipe(
       switchMap(({data: {data: {findCommand: command}}}) => message.channel.send(command.commandText)),
-      catchError(err => sendError('There was an error trying to fetch this command. Are you sure it does exist?', message, client))
+      catchError(err => err)
     ));
   }
 
