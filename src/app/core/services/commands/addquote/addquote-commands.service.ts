@@ -29,7 +29,7 @@ export class AddQuoteCommandsService {
   /**
    * Add Quotes Commands Central
    */
-  
+
   addQuoteCommands(message: Message, client: Client) {
     this._findEmoji = findEmoji(client);
     this._guildID = message.guild.id;
@@ -63,7 +63,7 @@ export class AddQuoteCommandsService {
         }
       }`,
     })).pipe(
-      map(({data: {data: {createQuote: quote}}}) => formatQuote(`Quote #${quote.indexNum} has been created.`)),
+      map(({ data: { data: { createQuote: quote } } }) => formatQuote(`Quote #${quote.indexNum} has been created.`)),
       switchMap(quote => sendQuote(quote, message, client)),
       catchError(err => sendError('Could not create the quote. Are you sure you followed the guidelines?', message, client))
     ));
@@ -77,27 +77,29 @@ export class AddQuoteCommandsService {
   private _addQuoteHelp(message: Message, client: Client) {
     const peepoSmart = this._findEmoji('peepoSmart');
 
-    return defer(() => from(message.channel.send({embed: {
-      color: 0xec407a,
-      author: {
-        name: client.user.username,
-        icon_url: client.user.avatarURL
-      },
-      title: `${peepoSmart} TrashBot AddQuote Help ${peepoSmart}`,
-      fields: [
-        {
-          name: 'Commands',
-          value: `
-            **!addquote** or **!addquote -h**
-            Shows the addquote help panel (this one right here).
-
-            **!addquote <quote> - <user_mention>**
-            Ex: *!addquote Eu vim ver o macaco - <@${message.author.id}>*
-            Adds the specified quote while saving it's owner.
-          `,
+    return defer(() => from(message.channel.send({
+      embed: {
+        color: 0xec407a,
+        author: {
+          name: client.user.username,
+          iconURL: client.user.avatarURL()
         },
-      ]
-    }})))
+        title: `${peepoSmart} TrashBot AddQuote Help ${peepoSmart}`,
+        fields: [
+          {
+            name: 'Commands',
+            value: `
+              **!addquote** or **!addquote -h**
+              Shows the addquote help panel (this one right here).
+  
+              **!addquote <quote> - <user_mention>**
+              Ex: *!addquote Eu vim ver o macaco - <@${message.author.id}>*
+              Adds the specified quote while saving it's owner.
+            `,
+          },
+        ]
+      }
+    })))
   }
 
 }

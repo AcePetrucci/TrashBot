@@ -1,7 +1,7 @@
-import { Message, Client } from 'discord.js';
+import { Message, Client, GuildMember, MessageEmbed } from 'discord.js';
 import { injectable, inject } from 'inversify';
 
-import { from, defer } from 'rxjs';
+import { from, defer, Observable } from 'rxjs';
 import { tap, map, switchMap, catchError } from 'rxjs/operators';
 
 import { findEmoji } from '../../../../utils/emojis/emojis';
@@ -44,6 +44,9 @@ export class QuoteCommandsService {
       case (message.content === '!quotelist'):
         return this._getQuoteList(message, client);
 
+      case (message.content.includes("!quotecount")):
+        return this._getQuoteCount(message, client);
+
       case (isNaN(+message.content.slice(7))):
         return this._getQuoteByText(message, client);
 
@@ -68,7 +71,7 @@ export class QuoteCommandsService {
         }
       }`,
     })).pipe(
-      map(({data: {data: {findQuoteByIndexNum: quote}}}) => formatQuote(quote, message)),
+      map(({ data: { data: { findQuoteByIndexNum: quote } } }) => formatQuote(quote, message)),
       switchMap(quote => sendQuote(quote, message, client)),
       catchError(err => sendError('There was an error trying to fetch this quote. Are you sure it does exist?', message, client))
     ));
@@ -90,7 +93,7 @@ export class QuoteCommandsService {
         }
       }`,
     })).pipe(
-      map(({data: {data: {findQuotes: quotes}}}) => quotes[Math.floor(Math.random() * quotes.length)]),
+      map(({ data: { data: { findQuotes: quotes } } }) => quotes[Math.floor(Math.random() * quotes.length)]),
       map(quote => formatQuote(quote, message)),
       switchMap(quote => sendQuote(quote, message, client)),
       catchError(err => sendError('There was an error trying to fetch this quote. Are you sure it does exist?', message, client))
@@ -113,7 +116,7 @@ export class QuoteCommandsService {
         }
       }`,
     })).pipe(
-      map(({data: {data: {findAllQuotes: quotes}}}) => quotes[Math.floor(Math.random() * quotes.length)]),
+      map(({ data: { data: { findAllQuotes: quotes } } }) => quotes[Math.floor(Math.random() * quotes.length)]),
       map(quote => formatQuote(quote, message)),
       switchMap(quote => sendQuote(quote, message, client)),
       catchError(err => sendError('It seems this server has no quotes saved yet. Type *!addquote* to see how to add one.', message, client))
@@ -128,17 +131,18 @@ export class QuoteCommandsService {
   private _getQuoteHelp(message: Message, client: Client) {
     const peepoSmart = this._findEmoji('peepoSmart');
 
-    return defer(() => from(message.channel.send({embed: {
-      color: 0xec407a,
-      author: {
-        name: client.user.username,
-        icon_url: client.user.avatarURL
-      },
-      title: `${peepoSmart} TrashBot Quote Help ${peepoSmart}`,
-      fields: [
-        {
-          name: 'Commands',
-          value: `
+    return defer(() => from(message.channel.send({
+      embed: {
+        color: 0xec407a,
+        author: {
+          name: client.user.username,
+          icon_url: client.user.avatarURL()
+        },
+        title: `${peepoSmart} TrashBot Quote Help ${peepoSmart}`,
+        fields: [
+          {
+            name: 'Commands',
+            value: `
             **!quote**
             Shows a random quote stored on this server.
 
@@ -156,9 +160,10 @@ export class QuoteCommandsService {
             Ex: *!quote Macaco*
             Shows a random quote which contains the specified quote text.
           `,
-        },
-      ]
-    }})))
+          },
+        ]
+      }
+    })))
   }
 
 
@@ -177,23 +182,99 @@ export class QuoteCommandsService {
         }
       }`,
     })).pipe(
-      map(({data: {data: {findAllQuotes: quotes}}}) => this._createQuoteList(quotes, message)),
-      switchMap(quoteList => this._formatQuoteList(quoteList.join('\n\n'), client, message)),
+      map(({ data: { data: { findAllQuotes: quotes } } }) => this._createQuoteList(quotes, message)),
+      switchMap(quoteList => this._formatQuoteList(quoteList, client, message)),
       catchError(err => sendError('It seems this server has no quotes saved yet. Type *!addquote* to see how to add one.', message, client))
     ))
   }
 
 
-  private _createQuoteList(quotes, message: Message) {
+  private _createQuoteList(quotes, message: Message): string[] {
     return quotes.map(quote => {
-      const author = message.guild.members.find(member => member.user.id === quote.authorID);
+      const author = message.guild.members.cache.find(member => member.user.id === quote.authorID);
 
       return `#${quote.indexNum}: ${quote.quote} - ${author?.nickname ?? author?.user.username} - ${new Date(quote.createdAt).toLocaleDateString()}`;
     })
   }
 
-  private _formatQuoteList(quoteList, client: Client, message: Message) {
-    return message.author.send(`\`\`\`*** ${message.guild.name.toUpperCase()} QUOTE LIST *** \n \n \n${quoteList}\`\`\``);
+  private _formatQuoteList(quoteList: string[], client: Client, message: Message) {
+    const pagedQuoteList = this._getPagedQuoteList(quoteList, []);
+
+    return pagedQuoteList.map(pagedQuotes => {
+      return message.author.send(`\`\`\`*** ${message.guild.name.toUpperCase()} QUOTE LIST *** \n \n \n${pagedQuotes.join('\n\n')}\`\`\``);
+    })
   }
 
+  private _getPagedQuoteList(quoteList: string[], pagedQuotes: string[][]): string[][] {
+    let charCount = 0;
+
+    const newPagedQuotes = quoteList.filter(quoteEntry => {
+      return (charCount += quoteEntry.length) <= 1900
+    })
+
+    const remainingQuoteList = quoteList.slice(
+      quoteList.findIndex(quoteEntry => (
+        quoteEntry === newPagedQuotes[newPagedQuotes.length - 1]
+      )) + 1
+    )
+
+    return remainingQuoteList.length
+      ? this._getPagedQuoteList(remainingQuoteList, pagedQuotes.concat([newPagedQuotes]))
+      : pagedQuotes.concat([newPagedQuotes]);
+  }
+
+  /**
+   * Get Quote Count
+   */
+
+  private _getQuoteCount(message: Message, client: Client) {
+    const countTarget = message.mentions.members.first() ?? null;
+
+    return defer(() => from(axios.post(this._quoteAPIUrl, {
+      query: `query {
+        findAllQuotes(guildID: "${this._guildID}") {
+          authorID,
+          quote,
+          indexNum,
+          createdAt
+        }
+      }`,
+    })).pipe(
+      map(({ data: { data: { findAllQuotes: quotes } } }) => ({
+        allQuotes: quotes,
+        userQuotes: quotes.filter(quote => quote.authorID === countTarget.id)
+      })),
+      switchMap(({ allQuotes, userQuotes }) => this._sendQuoteCount(
+        message,
+        allQuotes,
+        userQuotes,
+        countTarget
+      )),
+      catchError(err => sendError('It seems this server has no quotes saved yet. Type *!addquote* to see how to add one.', message, client))
+    ))
+  }
+
+  private _sendQuoteCount(
+    message: Message,
+    allQuotes: string[],
+    userQuotes: string[],
+    countTarget: GuildMember
+  ) {
+    const quoteLiteral = userQuotes.length > 1 ? "quotes" : "quote";
+    const quotePercentage = (((userQuotes.length) * 100) / (allQuotes.length)).toFixed(2);
+
+    const embedQuoteCount = new MessageEmbed()
+      .setColor(0xec407a)
+      .setAuthor(countTarget.displayName, countTarget.user.avatarURL())
+      .addField(
+        `Quotes Count`,
+        `${countTarget.displayName} has ${userQuotes.length} ${quoteLiteral} out of ${allQuotes.length}`
+      )
+      .addField(
+        `Quotes Percentage`,
+        `${countTarget.displayName} totalizes ${quotePercentage}% of this server's quotes`
+      );
+
+    return message.channel.send(embedQuoteCount);
+  }
 }

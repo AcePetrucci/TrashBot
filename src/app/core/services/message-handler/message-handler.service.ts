@@ -46,8 +46,8 @@ export class MessageHandler {
   /**
    * Message Handling Central
    */
-  
-  handleMessage(message: Message, client: Client): Observable<Message | Message[]> {
+
+  handleMessage(message: Message, client: Client): Observable<Message | Promise<Message>> {
     switch (true) {
       case message.content.includes('!scream'):
         return this._screamCommandsService.screamCommands(message, client);
@@ -59,7 +59,7 @@ export class MessageHandler {
         return this._quoteCommandsServices.showQuoteCommands(message, client);
 
       case message.content.includes('!quotelist'):
-          return this._quoteCommandsServices.showQuoteCommands(message, client);
+        return this._quoteCommandsServices.showQuoteCommands(message, client);
 
       case message.content.includes('!addquote'):
         return this._addQuoteCommandsServices.addQuoteCommands(message, client);
@@ -87,20 +87,21 @@ export class MessageHandler {
    * TrashHelp
    */
 
-  private _trashHelp(message: Message, client: Client): Observable<Message | Message[]> {
+  private _trashHelp(message: Message, client: Client): Observable<Message> {
     const peepoSmart = findEmoji(client)('peepoSmart');
 
-    return defer(() => from(message.channel.send({embed: {
-      color: 0xec407a,
-      author: {
-        name: client.user.username,
-        icon_url: client.user.avatarURL
-      },
-      title: `${peepoSmart} TrashBot Help ${peepoSmart}`,
-      fields: [
-        {
-          name: 'TrashBot Help',
-          value: `
+    return defer(() => from(message.channel.send({
+      embed: {
+        color: 0xec407a,
+        author: {
+          name: client.user.username,
+          iconURL: client.user.avatarURL()
+        },
+        title: `${peepoSmart} TrashBot Help ${peepoSmart}`,
+        fields: [
+          {
+            name: 'TrashBot Help',
+            value: `
             **!addquote -h**
             Shows the addquote help panel.
 
@@ -113,9 +114,10 @@ export class MessageHandler {
             **!nh -h**
             Shows the NH help panel.
           `,
-        },
-      ]
-    }})))
+          },
+        ]
+      }
+    })))
   }
 
 }

@@ -53,17 +53,18 @@ export class NhCommandsService {
   private _nhHelp(message: Message, client: Client) {
     const peepoSmart = this._findEmoji('peepoSmart');
 
-    return defer(() => from(message.channel.send({embed: {
-      color: 0xec407a,
-      author: {
-        name: client.user.username,
-        icon_url: client.user.avatarURL
-      },
-      title: `${peepoSmart} TrashBot NH Help ${peepoSmart}`,
-      fields: [
-        {
-          name: 'Commands',
-          value: `
+    return defer(() => from(message.channel.send({
+      embed: {
+        color: 0xec407a,
+        author: {
+          name: client.user.username,
+          iconURL: client.user.avatarURL()
+        },
+        title: `${peepoSmart} TrashBot NH Help ${peepoSmart}`,
+        fields: [
+          {
+            name: 'Commands',
+            value: `
             **!nh**
             Search for a random NH tag and return it's page.
             
@@ -71,9 +72,10 @@ export class NhCommandsService {
             Ex: *!nh yuri english*
             Search for a specific tag and return a random doujin which contains the specified tag(s).
           `,
-        },
-      ]
-    }})))
+          },
+        ]
+      }
+    })))
   }
 
 

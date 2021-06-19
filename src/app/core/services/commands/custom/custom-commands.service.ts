@@ -88,7 +88,7 @@ export class CustomCommandsService {
         }
       }`,
     })).pipe(
-      map(({data: {data: {createCommand: quote}}}) => formatQuote(`Command !${quote.commandName} has been created.`)),
+      map(({ data: { data: { createCommand: quote } } }) => formatQuote(`Command !${quote.commandName} has been created.`)),
       switchMap(quote => sendQuote(quote, message, client)),
       catchError(err => sendError('Could not create the command. Are you sure you followed the guidelines?', message, client))
     ));
@@ -97,17 +97,18 @@ export class CustomCommandsService {
   private _addCustomCommandHelp(message: Message, client: Client) {
     const peepoSmart = this._findEmoji('peepoSmart');
 
-    return defer(() => from(message.channel.send({embed: {
-      color: 0xec407a,
-      author: {
-        name: client.user.username,
-        icon_url: client.user.avatarURL
-      },
-      title: `${peepoSmart} TrashBot AddCommand Help ${peepoSmart}`,
-      fields: [
-        {
-          name: 'Commands',
-          value: `
+    return defer(() => from(message.channel.send({
+      embed: {
+        color: 0xec407a,
+        author: {
+          name: client.user.username,
+          iconURL: client.user.avatarURL()
+        },
+        title: `${peepoSmart} TrashBot AddCommand Help ${peepoSmart}`,
+        fields: [
+          {
+            name: 'Commands',
+            value: `
             **!addcommand** or **!addcommand -h**
             Shows the addcommand help panel (this one right here).
 
@@ -122,9 +123,10 @@ export class CustomCommandsService {
             **!commandslist**
             Shows the server's command list.
           `,
-        },
-      ]
-    }})))
+          },
+        ]
+      }
+    })))
   }
 
 
@@ -138,7 +140,7 @@ export class CustomCommandsService {
         findCommand(commandName: "${message.content.slice(1)}", guildID: "${this._guildID}") { commandText }
       }`,
     })).pipe(
-      switchMap(({data: {data: {findCommand: command}}}) => message.channel.send(command.commandText)),
+      switchMap(({ data: { data: { findCommand: command } } }) => message.channel.send(command.commandText)),
       catchError(err => Promise.reject())
     ));
   }
@@ -161,7 +163,7 @@ export class CustomCommandsService {
         }
       }`,
     })).pipe(
-      map(({data: {data: {deleteByNameCommand: command}}}) => formatQuote(`Command !${command.commandName} has been deleted.`)),
+      map(({ data: { data: { deleteByNameCommand: command } } }) => formatQuote(`Command !${command.commandName} has been deleted.`)),
       switchMap(quote => sendQuote(quote, message, client)),
       catchError(err => sendError('Could not delete the command. Did you get the command name right?', message, client))
     ))
@@ -183,8 +185,8 @@ export class CustomCommandsService {
         }
       }`,
     })).pipe(
-      map(({data: {data: {findAllCommands: commands}}}) => this._createCommandsList(commands, message)),
-      switchMap(commandsList => this._formatCommandsList(commandsList.join('\n\n'), client, message)),
+      map(({ data: { data: { findAllCommands: commands } } }) => this._createCommandsList(commands, message)),
+      switchMap(commandsList => this._formatCommandsList(commandsList, client, message)),
       catchError(err => sendError('It seems this server has no commands saved yet. Type *!addcommand* to see how to add one.', message, client))
     ))
   }
@@ -192,14 +194,36 @@ export class CustomCommandsService {
 
   private _createCommandsList(commands, message: Message) {
     return commands.map(command => {
-      const author = message.guild.members.find(member => member.user.id === command.authorID);
+      const author = message.guild.members.cache.find(member => member.user.id === command.authorID);
 
       return `!${command.commandName}: ${command.commandText} - ${author?.nickname ?? author?.user.username} - ${new Date(command.createdAt).toLocaleDateString()}`;
     })
   }
 
-  private _formatCommandsList(commandsList, client: Client, message: Message) {
-    return message.author.send(`\`\`\`*** ${message.guild.name.toUpperCase()} COMMANDS LIST *** \n \n \n${commandsList}\`\`\``);
+  private _formatCommandsList(commandsList: string[], client: Client, message: Message) {
+    const pagedCommandsList = this._getPagedCommandsList(commandsList, []);
+
+    return pagedCommandsList.map(pagedCommands => {
+      return message.author.send(`\`\`\`*** ${message.guild.name.toUpperCase()} COMMANDS LIST *** \n \n \n${pagedCommands.join('\n\n')}\`\`\``);
+    })
+  }
+
+  private _getPagedCommandsList(commandsList: string[], pagedCommands: string[][]): string[][] {
+    let charCount = 0;
+
+    const newPagedCommands = commandsList.filter(commandEntry => {
+      return (charCount += commandEntry.length) <= 1900
+    })
+
+    const remainingCommandsList = commandsList.slice(
+      commandsList.findIndex(commandEntry => (
+        commandEntry === newPagedCommands[newPagedCommands.length - 1]
+      )) + 1
+    )
+
+    return remainingCommandsList.length
+      ? this._getPagedCommandsList(remainingCommandsList, pagedCommands.concat([newPagedCommands]))
+      : pagedCommands.concat([newPagedCommands]);
   }
 
 }

@@ -27,7 +27,7 @@ export class AsciiCommandsService {
   private _formatAscii(message: Message, client: Client) {
     const asciiToFormat = message.content.slice(7);
     const formattedAscii = asciiToFormat.replace(/ /g, '').match(/.{1,30}/g).join('\n');
-    const generalChannel = message.guild.channels.find(channel => channel.name === 'general') as TextChannel;
+    const generalChannel = message.guild.channels.cache.find(channel => channel.name === 'general') as TextChannel;
 
     const formattedAsQuote = formatQuote(formattedAscii, message, message.author.id);
 

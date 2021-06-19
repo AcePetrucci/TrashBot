@@ -33,7 +33,7 @@ export class ReadyHandler {
   /**
    * Main Handle Function
    */
-  
+
   handleReady(client: Client) {
     return this._currentInterval.pipe(
       switchMap(timer => this._sendDoujin(timer, client)),
@@ -63,9 +63,10 @@ export class ReadyHandler {
    */
 
   private _findBotChannels(client: Client) {
-    return client.channels
-      .findAll('type', 'text')
-      .filter((ch: TextChannel) => channels.includes(ch.name)) as TextChannel[];
+    return client.channels.cache
+      .filter((ch: TextChannel) => ch.type == "text")
+      .filter((ch: TextChannel) => channels.includes(ch.name))
+      .array() as TextChannel[];
   }
 
 
