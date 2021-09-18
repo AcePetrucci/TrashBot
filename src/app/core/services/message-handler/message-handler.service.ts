@@ -14,6 +14,8 @@ import { AddQuoteCommandsService } from '../commands/addquote/addquote-commands.
 
 import { CustomCommandsService } from '../commands/custom/custom-commands.service';
 
+import { MusicCommandsService } from '../commands/music/music-commands.service';
+
 import { findEmoji } from '../../../utils/emojis/emojis';
 
 @injectable()
@@ -25,6 +27,7 @@ export class MessageHandler {
   private _nhCommandsService: NhCommandsService;
   private _asciiCommandsService: AsciiCommandsService;
   private _customCommandsService: CustomCommandsService;
+  private _musicCommandsService: MusicCommandsService;
 
   constructor(
     @inject(TYPES.ScreamCommandsService) screamCommandsService: ScreamCommandsService,
@@ -33,6 +36,7 @@ export class MessageHandler {
     @inject(TYPES.AddQuoteCommandsService) addQuoteCommandsService: AddQuoteCommandsService,
     @inject(TYPES.AsciiCommandsService) asciiCommandsService: AsciiCommandsService,
     @inject(TYPES.CustomCommandsService) customCommandsService: CustomCommandsService,
+    @inject(TYPES.MusicCommandsService) musicCommandsService: MusicCommandsService,
   ) {
     this._screamCommandsService = screamCommandsService;
     this._nhCommandsService = nhCommandsService;
@@ -40,6 +44,7 @@ export class MessageHandler {
     this._addQuoteCommandsServices = addQuoteCommandsService;
     this._asciiCommandsService = asciiCommandsService;
     this._customCommandsService = customCommandsService;
+    this._musicCommandsService = musicCommandsService;
   }
 
 
@@ -47,7 +52,7 @@ export class MessageHandler {
    * Message Handling Central
    */
 
-  handleMessage(message: Message, client: Client): Observable<Message | Promise<Message>> {
+  handleMessage(message: Message, client: Client): Observable<Message | Promise<Message> | void> {
     switch (true) {
       case message.content.includes('!scream'):
         return this._screamCommandsService.screamCommands(message, client);
@@ -72,6 +77,18 @@ export class MessageHandler {
 
       case (message.content.includes('!trash') || message.content.includes('!trash -h')):
         return this._trashHelp(message, client);
+
+      case (message.content.startsWith('!play') || message.content.startsWith('!p ')):
+        return this._musicCommandsService.musicCommands(message, client);
+
+      case (message.content.startsWith('!stop') || message.content === '!s'):
+        return this._musicCommandsService.musicCommands(message, client);
+
+      case (message.content.startsWith('!skip') || message.content === '!sk'):
+        return defer(() => from(Promise.reject()));
+
+      case (message.content.startsWith('!previous') || message.content === '!pr'):
+        return defer(() => from(Promise.reject()));
 
       case message.content.startsWith('!'):
         return this._customCommandsService.getCustomCommandsHandler(message, client);

@@ -17,6 +17,7 @@ const TYPES = {
   AddQuoteCommandsService: Symbol('AddQuoteCommandsService'),
   AsciiCommandsService: Symbol('AsciiCommandsService'),
   CustomCommandsService: Symbol('CustomCommandsService'),
+  MusicCommandsService: Symbol('MusicCommandsService'),
 }
 
 export default TYPES;

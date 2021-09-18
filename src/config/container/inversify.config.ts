@@ -17,6 +17,7 @@ import { QuoteCommandsService } from '../../app/core/services/commands/quote/quo
 import { AddQuoteCommandsService } from '../../app/core/services/commands/addquote/addquote-commands.service';
 import { AsciiCommandsService } from '../../app/core/services/commands/ascii/ascii-commands.service';
 import { CustomCommandsService } from '../../app/core/services/commands/custom/custom-commands.service';
+import { MusicCommandsService } from '../../app/core/services/commands/music/music-commands.service';
 
 const container = new Container();
 
@@ -33,6 +34,7 @@ container.bind<QuoteCommandsService>(TYPES.QuoteCommandsService).to(QuoteCommand
 container.bind<AddQuoteCommandsService>(TYPES.AddQuoteCommandsService).to(AddQuoteCommandsService).inSingletonScope();
 container.bind<AsciiCommandsService>(TYPES.AsciiCommandsService).to(AsciiCommandsService).inSingletonScope();
 container.bind<CustomCommandsService>(TYPES.CustomCommandsService).to(CustomCommandsService).inSingletonScope();
+container.bind<MusicCommandsService>(TYPES.MusicCommandsService).to(MusicCommandsService).inSingletonScope();
 
 container.bind<Client>(TYPES.Client).toConstantValue(new Client());
 container.bind<string>(TYPES.Token).toConstantValue(process.env.TOKEN);
