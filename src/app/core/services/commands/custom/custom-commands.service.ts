@@ -11,7 +11,6 @@ import { sendError } from '../../../../utils/errors/errors';
 import TYPES from '../../../../../config/types/types';
 
 import axios from 'axios';
-import { memory } from 'console';
 
 @injectable()
 export class CustomCommandsService {
