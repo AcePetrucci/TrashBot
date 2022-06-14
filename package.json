@@ -17,7 +17,6 @@
     "@discordjs/opus": "^0.6.0",
     "@types/node": "^17.0.42",
     "axios": "^0.21.1",
-    "codelyzer": "^5.2.1",
     "date-fns": "^2.9.0",
     "discord-ytdl-core": "^5.0.4",
     "discord.js": "^13.8.0",
