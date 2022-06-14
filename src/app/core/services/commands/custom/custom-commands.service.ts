@@ -1,4 +1,4 @@
-import { Message, Client } from 'discord.js';
+import { Message, Client, MessageEmbed } from 'discord.js';
 import { injectable, inject } from 'inversify';
 
 import { from, defer } from 'rxjs';
@@ -96,18 +96,17 @@ export class CustomCommandsService {
   private _addCustomCommandHelp(message: Message, client: Client) {
     const peepoSmart = this._findEmoji('peepoSmart');
 
-    return defer(() => from(message.channel.send({
-      embed: {
-        color: 0xec407a,
-        author: {
-          name: client.user.username,
-          iconURL: client.user.avatarURL()
-        },
-        title: `${peepoSmart} TrashBot AddCommand Help ${peepoSmart}`,
-        fields: [
-          {
-            name: 'Commands',
-            value: `
+    const embed = new MessageEmbed()
+      .setColor(0xec407a)
+      .setAuthor({
+        name: client.user.username,
+        iconURL: client.user.avatarURL()
+      })
+      .setTitle(`${peepoSmart} TrashBot AddCommand Help ${peepoSmart}`)
+      .setFields([
+        {
+          name: 'Commands',
+          value: `
             **!addcommand** or **!addcommand -h**
             Shows the addcommand help panel (this one right here).
 
@@ -122,9 +121,11 @@ export class CustomCommandsService {
             **!commandslist**
             Shows the server's command list.
           `,
-          },
-        ]
-      }
+        },
+      ]);
+
+    return defer(() => from(message.channel.send({
+      embeds: [embed]
     })))
   }
 
@@ -162,7 +163,7 @@ export class CustomCommandsService {
         }
       }`,
     })).pipe(
-      map(({ data: { data: { deleteByNameCommand: command } } }) => formatQuote(`Command !${command.commandName} has been deleted.`)),
+      switchMap(({ data: { data: { deleteByNameCommand: command } } }) => formatQuote(`Command !${command.commandName} has been deleted.`)),
       switchMap(quote => sendQuote(quote, message, client)),
       catchError(err => sendError('Could not delete the command. Did you get the command name right?', message, client))
     ))

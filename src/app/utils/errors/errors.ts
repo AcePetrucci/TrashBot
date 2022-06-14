@@ -1,4 +1,4 @@
-import { Message, Client } from "discord.js"
+import { Message, Client, MessageEmbed } from "discord.js"
 
 
 /**
@@ -6,15 +6,16 @@ import { Message, Client } from "discord.js"
  */
 
 export const sendError = (errorText: string, message: Message, client: Client) => {
+  const embed = new MessageEmbed()
+    .setColor(0xec407a)
+    .setAuthor({
+      name: client.user.username,
+      iconURL: client.user.avatarURL()
+    })
+    .setTitle(errorText)
+    .setTimestamp(new Date());
+
   return message.channel.send({
-    embed: {
-      color: 0xec407a,
-      author: {
-        name: client.user.username,
-        iconURL: client.user.avatarURL()
-      },
-      title: errorText,
-      timestamp: new Date()
-    }
+    embeds: [embed]
   })
 }

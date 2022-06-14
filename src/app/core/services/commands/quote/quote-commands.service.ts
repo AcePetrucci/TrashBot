@@ -71,7 +71,7 @@ export class QuoteCommandsService {
         }
       }`,
     })).pipe(
-      map(({ data: { data: { findQuoteByIndexNum: quote } } }) => formatQuote(quote, message)),
+      switchMap(({ data: { data: { findQuoteByIndexNum: quote } } }) => formatQuote(quote, message)),
       switchMap(quote => sendQuote(quote, message, client)),
       catchError(err => sendError('There was an error trying to fetch this quote. Are you sure it does exist?', message, client))
     ));
@@ -94,7 +94,7 @@ export class QuoteCommandsService {
       }`,
     })).pipe(
       map(({ data: { data: { findQuotes: quotes } } }) => quotes[Math.floor(Math.random() * quotes.length)]),
-      map(quote => formatQuote(quote, message)),
+      switchMap(quote => formatQuote(quote, message)),
       switchMap(quote => sendQuote(quote, message, client)),
       catchError(err => sendError('There was an error trying to fetch this quote. Are you sure it does exist?', message, client))
     ));
@@ -117,7 +117,7 @@ export class QuoteCommandsService {
       }`,
     })).pipe(
       map(({ data: { data: { findAllQuotes: quotes } } }) => quotes[Math.floor(Math.random() * quotes.length)]),
-      map(quote => formatQuote(quote, message)),
+      switchMap(quote => formatQuote(quote, message)),
       switchMap(quote => sendQuote(quote, message, client)),
       catchError(err => sendError('It seems this server has no quotes saved yet. Type *!addquote* to see how to add one.', message, client))
     ))
@@ -130,19 +130,18 @@ export class QuoteCommandsService {
 
   private _getQuoteHelp(message: Message, client: Client) {
     const peepoSmart = this._findEmoji('peepoSmart');
-
-    return defer(() => from(message.channel.send({
-      embed: {
-        color: 0xec407a,
-        author: {
-          name: client.user.username,
-          icon_url: client.user.avatarURL()
-        },
-        title: `${peepoSmart} TrashBot Quote Help ${peepoSmart}`,
-        fields: [
-          {
-            name: 'Commands',
-            value: `
+    
+    const embed = new MessageEmbed()
+      .setColor(0xec407a)
+      .setAuthor({
+        name: client.user.username,
+        iconURL: client.user.avatarURL()
+      })
+      .setTitle(`${peepoSmart} TrashBot Quote Help ${peepoSmart}`)
+      .setFields([
+        {
+          name: 'Commands',
+          value: `
             **!quote**
             Shows a random quote stored on this server.
 
@@ -160,9 +159,11 @@ export class QuoteCommandsService {
             Ex: *!quote Macaco*
             Shows a random quote which contains the specified quote text.
           `,
-          },
-        ]
-      }
+        },
+      ]);
+
+    return defer(() => from(message.channel.send({
+      embeds: [embed]
     })))
   }
 
@@ -265,16 +266,23 @@ export class QuoteCommandsService {
 
     const embedQuoteCount = new MessageEmbed()
       .setColor(0xec407a)
-      .setAuthor(countTarget.displayName, countTarget.user.avatarURL())
-      .addField(
-        `Quotes Count`,
-        `${countTarget.displayName} has ${userQuotes.length} ${quoteLiteral} out of ${allQuotes.length}`
-      )
-      .addField(
-        `Quotes Percentage`,
-        `${countTarget.displayName} totalizes ${quotePercentage}% of this server's quotes`
-      );
+      .setAuthor({
+        name: countTarget.displayName,
+        iconURL: countTarget.user.avatarURL()
+      })
+      .setFields([
+        {
+          name: 'Quotes Count',
+          value: `${countTarget.displayName} has ${userQuotes.length} ${quoteLiteral} out of ${allQuotes.length}`,
+        },
+        {
+          name: 'Quotes Percentage',
+          value: `${countTarget.displayName} totalizes ${quotePercentage}% of this server's quotes`,
+        },
+      ]);
 
-    return message.channel.send(embedQuoteCount);
+    return message.channel.send({
+      embeds: [embedQuoteCount]
+    });
   }
 }

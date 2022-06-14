@@ -13,68 +13,68 @@ import TYPES from '../../../../../config/types/types';
 import axios from 'axios';
 
 @injectable()
-export class AddQuoteCommandsService {
+export class DeleteQuoteCommandsService {
 
   private _findEmoji;
   private _guildID: string;
+  private _commands: string[];
   private readonly _quoteAPIUrl: string;
 
   constructor(
     @inject(TYPES.QuoteAPIUrl) quoteAPIUrl: string
   ) {
     this._quoteAPIUrl = quoteAPIUrl;
+    this._commands = [
+      '!dquote',
+      '!dquote -h',
+    ];
   }
 
 
   /**
-   * Add Quotes Commands Central
+   * Delete Quotes Commands Central
    */
 
-  addQuoteCommands(message: Message, client: Client) {
+  deleteQuoteCommands(message: Message, client: Client) {
     this._findEmoji = findEmoji(client);
     this._guildID = message.guild.id;
 
     switch (true) {
-      case ((message.content === '!addquote -h') || (message.content === '!addquote')):
-        return this._addQuoteHelp(message, client);
+      case this._commands.some(command => command === message.content):
+        return this._deleteQuoteHelp(message, client);
 
       default:
-        return this._addQuote(message, client);
+        return this._deleteQuote(message, client);
     }
   }
 
 
   /**
-   * Add Quote
+   * Delete Quote
    */
 
-  private _addQuote(message: Message, client: Client) {
-    const authorID = message.mentions.users.first()?.id ?? null;
-    const [quote, ...tails] = message.content.slice(10).split(' - ');
+  private _deleteQuote(message: Message, client: Client) {
+    const indexNum = message.content.slice(8);
 
     return defer(() => from(axios.post(this._quoteAPIUrl, {
       query: `mutation {
-        createQuote(quote: {
-          authorID: "${authorID}",
-          guildID: "${this._guildID}",
-          quote: "${quote}"
-        }) {
+        deleteByIndexNumQuote(guildID: "${this._guildID}", indexNum: ${+indexNum}) {
           indexNum
         }
       }`,
     })).pipe(
-      switchMap(({ data: { data: { createQuote: quote } } }) => formatQuote(`Quote #${quote.indexNum} has been created.`)),
+      switchMap(({ data: { data: { deleteByIndexNumQuote: quote } } }) => formatQuote(`Quote #${quote.indexNum} has been deleted.`)),
       switchMap(quote => sendQuote(quote, message, client)),
-      catchError(err => sendError('Could not create the quote. Are you sure you followed the guidelines?', message, client))
+      catchError(err => sendError('Could not delete the quote. Are you sure you followed the guidelines?', message, client))
     ));
   }
 
 
   /**
-   * Add Quote Help
+   * Delete Quote Help
    */
 
-  private _addQuoteHelp(message: Message, client: Client) {
+  private _deleteQuoteHelp(message: Message, client: Client) {
     const peepoSmart = this._findEmoji('peepoSmart');
 
     const embed = new MessageEmbed()
@@ -83,17 +83,17 @@ export class AddQuoteCommandsService {
         name: client.user.username,
         iconURL: client.user.avatarURL()
       })
-      .setTitle(`${peepoSmart} TrashBot AddQuote Help ${peepoSmart}`)
+      .setTitle(`${peepoSmart} TrashBot DeleteQuote Help ${peepoSmart}`)
       .setFields([
         {
           name: 'Commands',
           value: `
-            **!addquote** or **!addquote -h**
-            Shows the addquote help panel (this one right here).
+            **!dquote** or **!dquote -h**
+            Shows the dquote help panel (this one right here).
 
-            **!addquote <quote> - <user_mention>**
-            Ex: *!addquote Eu vim ver o macaco - <@${message.author.id}>*
-            Adds the specified quote while saving it's owner.
+            **!dquote <quote ID>**
+            Ex: *!dquote 2*
+            Delete the specified quote. Keep in mind that if it's not the last quote created, it will leave a permanent failed quote on the server.
           `,
         },
       ]);

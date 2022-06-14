@@ -10,12 +10,12 @@ const TYPES = {
   ReadyHandler: Symbol('ReadyHandler'),
 
   DoujinFinderService: Symbol('DoujinFinderService'),
+  DoujinSenderService: Symbol('DoujinSenderService'),
 
-  ScreamCommandsService: Symbol('ScreamCommandsService'),
   NhCommandsService: Symbol('NhCommandsService'),
   QuoteCommandsService: Symbol('QuoteCommandsService'),
   AddQuoteCommandsService: Symbol('AddQuoteCommandsService'),
-  AsciiCommandsService: Symbol('AsciiCommandsService'),
+  DeleteQuoteCommandsService: Symbol('DeleteQuoteCommandsService'),
   CustomCommandsService: Symbol('CustomCommandsService'),
   MusicCommandsService: Symbol('MusicCommandsService'),
 }

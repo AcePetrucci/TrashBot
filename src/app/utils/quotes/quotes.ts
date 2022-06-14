@@ -1,13 +1,13 @@
-import { Message, Client, GuildMember, User, TextChannel } from "discord.js"
+import { Message, Client, GuildMember, User, TextChannel, MessageEmbed } from "discord.js"
 
 
 /**
  * Format Quote
  */
 
-export const formatQuote = (quote: any, message?: Message, authorID?: string) => {
+export const formatQuote = async (quote: any, message?: Message, authorID?: string) => {
   const author = message
-    ? message.guild.members.cache.find(member => member.user.id === (quote.authorID || authorID))
+    ? await message.guild.members.fetch(quote.authorID || authorID)
     : null;
 
   return author
@@ -31,16 +31,17 @@ export const formatQuote = (quote: any, message?: Message, authorID?: string) =>
  */
 
 export const sendQuote = (quote: any, message: Message, client: Client, channel?: TextChannel) => {
+  const embed = new MessageEmbed()
+    .setColor(0xec407a)
+    .setAuthor({
+      name: quote.author,
+      iconURL: quote.authorAvatar ?? client.user.avatarURL()
+    })
+    .setTitle(quote.quoteText.length > 256 ? '' : quote.quoteText)
+    .setDescription(quote.quoteText.length < 256 ? '' : quote.quoteText)
+    .setTimestamp(quote.date);
+
   return (channel ?? message.channel).send({
-    embed: {
-      color: 0xec407a,
-      author: {
-        name: quote.author,
-        iconURL: quote.authorAvatar ?? client.user.avatarURL()
-      },
-      title: quote.quoteText.length > 256 ? '' : quote.quoteText,
-      description: quote.quoteText.length < 256 ? '' : quote.quoteText,
-      timestamp: quote.date
-    }
+    embeds: [embed]
   })
 }

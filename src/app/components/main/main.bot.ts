@@ -40,8 +40,8 @@ export class TrashBot {
      * Listen to messages
      */
 
-    this.client.on('message', (message: Message) => {
-      if (message.author.bot) { return false; }
+    this.client.on('messageCreate', (message: Message) => {
+      if (message.author.bot) { return; }
 
       setTimeout(() => {
         this.messageHandler.handleMessage(message, this.client).pipe(

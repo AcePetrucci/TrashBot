@@ -1,32 +1,31 @@
-import { Client, TextChannel } from 'discord.js';
+import { Client } from 'discord.js';
 import { inject, injectable } from 'inversify';
+import axios from 'axios';
 
 import TYPES from '../../../../config/types/types';
 
-import { channels } from '../../../utils/keywords/channels';
+import { Observable, from, defer, of } from 'rxjs';
+import { map, mergeMap } from 'rxjs/operators';
 
-import { Observable, from, defer, interval, BehaviorSubject, of } from 'rxjs';
-import { map, switchMap, tap } from 'rxjs/operators';
+import { DoujinSenderService } from '../doujin-sender/doujin-sender.service';
 
-import { DoujinFinderService } from '../doujin-finder/doujin-finder.service';
+import { IGetServerConfig, IServerConfig } from './ready-handler.model';
 
 @injectable()
 export class ReadyHandler {
 
-  private _doujinFinderService: DoujinFinderService;
+  private _doujinSenderService: DoujinSenderService;
 
-  private _dayMs = 1000 * 60 * 60 * 24;
-  private _lastTimer = 0;
-  private _incrementMs = 16000000;
-
-  private _generateTimer = () => Math.floor(Math.random() * this._dayMs + 1);
-  private _currentInterval = new BehaviorSubject<number>(this._generateTimer());
+  private _guildIDs: string[];
+  private readonly _quoteAPIUrl: string;
 
 
   constructor(
-    @inject(TYPES.DoujinFinderService) doujinFinderService: DoujinFinderService
+    @inject(TYPES.DoujinSenderService) doujinSenderService: DoujinSenderService,
+    @inject(TYPES.QuoteAPIUrl) quoteAPIUrl: string
   ) {
-    this._doujinFinderService = doujinFinderService;
+    this._doujinSenderService = doujinSenderService;
+    this._quoteAPIUrl = quoteAPIUrl;
   }
 
 
@@ -35,51 +34,45 @@ export class ReadyHandler {
    */
 
   handleReady(client: Client) {
-    return this._currentInterval.pipe(
-      switchMap(timer => this._sendDoujin(timer, client)),
+    this._guildIDs = [...client.guilds.cache.values()].map(guild => guild.id);
+
+    return defer(() => from(this._guildIDs).pipe(
+      mergeMap(guildID => this._getServerConfig(guildID)),
+      mergeMap(server => server.config === null
+        ? this._createServerConfig(server.guildID)
+        : of(server.config)
+      ),
+      mergeMap(serverConfig => this._doujinSenderService._sendDoujin(serverConfig, client)),
+    ));
+  }
+
+  private _getServerConfig(guildID: string): Observable<IGetServerConfig> {
+    return from(axios.post(this._quoteAPIUrl, {
+      query: `query {
+        findServerConfig(guildID: "${guildID}") {
+          id,
+          guildID,
+          nhenDisable,
+          nhenTimer
+        }
+      }`,
+    })).pipe(
+      map(({data: {data: {findServerConfig}}}) => ({guildID, config: findServerConfig}))
     );
   }
 
-  private _sendDoujin(currentInterval: number, client: Client) {
-    return interval(currentInterval).pipe(
-      switchMap(_ => this._prepareObservableChannel(client)),
-      map(channels => channels.map(channel => channel.send(this._doujinFinderService.findDoujin()))),
-      tap(_ => this._dayTimer()),
-    )
+  private _createServerConfig(guildID: string): Observable<IServerConfig> {
+    return from(axios.post(this._quoteAPIUrl, {
+      query: `mutation {
+        createServerConfig(serverConfig: {guildID: "${guildID}"}) {
+          id,
+          guildID,
+          nhenDisable,
+          nhenTimer
+        }
+      }`,
+    })).pipe(
+      map(({data: {data: {createServerConfig}}}) => createServerConfig)
+    );
   }
-
-
-  /**
-   * Ready Observable
-   */
-
-  private _prepareObservableChannel(client: Client) {
-    return defer(() => of(this._findBotChannels(client)));
-  }
-
-
-  /**
-   * Get Bots Channels
-   */
-
-  private _findBotChannels(client: Client) {
-    return client.channels.cache
-      .filter((ch: TextChannel) => ch.type == "text")
-      .filter((ch: TextChannel) => channels.includes(ch.name))
-      .array() as TextChannel[];
-  }
-
-
-  /**
-   * Day Timer
-   */
-
-  private _dayTimer(needToIncrement = 0) {
-    const generatedTimer = this._generateTimer();
-
-    return (generatedTimer + this._lastTimer + needToIncrement) > this._dayMs
-      ? this._currentInterval.next(generatedTimer)
-      : this._dayTimer(needToIncrement + this._incrementMs);
-  }
-
 }
