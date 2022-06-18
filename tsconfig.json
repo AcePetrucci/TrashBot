@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "baseUrl": "./",
+    "baseUrl": ".",
     "module": "commonjs",
     "moduleResolution": "node",
     "target": "es2016",
@@ -22,7 +22,12 @@
     "emitDecoratorMetadata": true,
     "resolveJsonModule": true,
     "esModuleInterop": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "paths": {
+      "bot/*": ["src/bot/*"],
+      "core/*": ["src/core/*"],
+      "shared/*": ["src/shared/*"],
+    }
   },
   "exclude": [
     "node_modules"
