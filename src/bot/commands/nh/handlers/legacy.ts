@@ -4,7 +4,7 @@ import {
   nhHelpEvent,
   nhSearchEvents,
   nhToggleEvent
-} from '../utils';
+} from '../events';
 
 
 /**
