@@ -11,7 +11,7 @@ export interface ISlashCommand {
 }
 
 export interface ILegacyCommand {
-  data: SlashCommandBuilder;
+  data: string[];
   trigger: (
     message: Message,
     client: Client

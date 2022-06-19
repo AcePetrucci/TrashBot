@@ -1,7 +1,5 @@
 import { Client } from 'discord.js';
 
-import { intentsList } from 'shared/utils'
-
 import {
   readyEvent,
   messageCreateEvent,
@@ -10,12 +8,15 @@ import {
 
 import { IClient } from 'shared/models';
 
+import { intentsList } from 'shared/utils'
+
 
 /**
  * TrashBot
  */
 
 export const TrashBot = () => {
+
   let client: IClient = new Client({intents: intentsList});
 
   const { clientReady } = readyEvent(client);

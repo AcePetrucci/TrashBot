@@ -4,12 +4,11 @@ import {
   loadLegacyCommands,
 } from 'shared/utils'
 
-import { IClient, ILegacyCommand, ISlashCommand } from 'shared/models';
+import { IClient } from 'shared/models';
 
 export const readyEvent = (
   client: IClient
 ) => {
-
 
   /**
    * Client Ready

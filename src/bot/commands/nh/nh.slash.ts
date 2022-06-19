@@ -1,17 +1,15 @@
 import { Client } from 'discord.js';
 import { SlashCommandBuilder } from "@discordjs/builders";
-
 import { defer, from } from 'rxjs';
 
 import pipe from 'lodash/fp/pipe';
 
-import { nhCommands } from 'bot/commands/nh';
+import { nhCommands } from './nh';
 
-import { MessageInteraction } from "shared/models/interaction";
+import { MessageInteraction } from "shared/models";
 
 export const nhCommandsSlash = () => {
 
-  
   /**
    * Add Command
    */

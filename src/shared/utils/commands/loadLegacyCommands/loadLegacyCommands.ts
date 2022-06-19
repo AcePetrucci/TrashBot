@@ -20,6 +20,8 @@ export const loadLegacyCommands = (client: IClient) => {
 
     const legacyCommands = command();
 
-    client.legacyCommands.set(legacyCommands.data[0], legacyCommands)
+    legacyCommands.data.forEach(commandName => {
+      client.legacyCommands.set(commandName, legacyCommands)
+    })
   }
 }

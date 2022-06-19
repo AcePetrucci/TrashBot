@@ -7,7 +7,6 @@ export const interactionCreateEvent = (
   client: IClient
 ) => {
 
-
   /**
    * Client Interaction Create
    */

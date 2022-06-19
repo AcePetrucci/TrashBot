@@ -11,6 +11,7 @@ import { readCommandsFiles } from '../readCommandsFiles';
  */
 
 export const createSlashCommands = () => {
+
   const clientID = process.env.CLIENT_ID;
   const token = process.env.TOKEN;
 

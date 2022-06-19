@@ -7,7 +7,6 @@ export const messageCreateEvent = (
   client: IClient
 ) => {
 
-
   /**
    * Client Message Create
    */

@@ -6,9 +6,9 @@ import { formatEmbed, setEmbedData } from '../embed';
 import { interactionReplyEmbed } from '../interactionReply'; 
 
 
-export const sendErrorEmbed = async (interaction: MessageInteraction, client: Client, error: string) => {
-  const embedData = setEmbedData(client, error);
+export const sendErrorEmbed = async (error: string, interaction: MessageInteraction, client: Client) => {
+  const embedData = setEmbedData(error, client);
   const embedMsg = formatEmbed(embedData, client);
   
-  return interactionReplyEmbed(interaction, embedMsg);
+  return interactionReplyEmbed(embedMsg, interaction);
 }

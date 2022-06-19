@@ -1,10 +1,9 @@
 import { Client } from 'discord.js';
-
 import { defer, from } from 'rxjs';
 
-import { nhCommands } from 'bot/commands/nh';
+import { nhCommands } from './nh';
 
-import { MessageInteraction } from "shared/models/interaction";
+import { MessageInteraction } from "shared/models";
 
 export const nhCommandsLegacy = () => {
 

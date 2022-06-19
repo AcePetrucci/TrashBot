@@ -1,9 +1,8 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-export const readCommandsFiles = (
-  type: string
-) => {
+export const readCommandsFiles = (type: string) => {
+
   const commandsPath = path.join(__dirname, '../../../../bot/commands');
   const commandsDir = fs.readdirSync(commandsPath);
 
@@ -12,7 +11,10 @@ export const readCommandsFiles = (
    * Recursive Flatten Commands
    */
 
-  const flattenCommandsPath = (path: string, subDir: string | string[]) => {
+  const flattenCommandsPath = (
+    path: string,
+    subDir: string | string[]
+  ) => {
     const multipleDirs = Array.isArray(subDir);
     
     const subDirectory = multipleDirs
