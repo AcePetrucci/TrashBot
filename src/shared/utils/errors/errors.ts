@@ -1,21 +1,14 @@
-import { Message, Client, MessageEmbed } from "discord.js"
+import { Client } from 'discord.js';
+
+import { MessageInteraction } from 'shared/models';
+
+import { formatEmbed, setEmbedData } from '../embed';
+import { interactionReplyEmbed } from '../interactionReply'; 
 
 
-/**
- * Send Error in Embed Format
- */
-
-export const sendError = (errorText: string, message: Message, client: Client) => {
-  const embed = new MessageEmbed()
-    .setColor(0xec407a)
-    .setAuthor({
-      name: client.user.username,
-      iconURL: client.user.avatarURL()
-    })
-    .setTitle(errorText)
-    .setTimestamp(new Date());
-
-  return message.channel.send({
-    embeds: [embed]
-  })
+export const sendErrorEmbed = async (interaction: MessageInteraction, client: Client, error: string) => {
+  const embedData = setEmbedData(client, error);
+  const embedMsg = formatEmbed(embedData, client);
+  
+  return interactionReplyEmbed(interaction, embedMsg);
 }

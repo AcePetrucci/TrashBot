@@ -1,1 +1,1 @@
-export * from './channels';
+export * from './keywords';

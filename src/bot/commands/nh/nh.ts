@@ -1,110 +1,97 @@
-import { Message, Client, MessageEmbed } from 'discord.js';
-import { inject, injectable } from 'inversify';
-
-import { from, defer } from 'rxjs';
-import { switchMap, catchError } from 'rxjs/operators';
-
-import { DoujinFinderService } from 'bot/services/doujin';
-
-import {
-  findEmoji,
-  formatQuote,
-  sendQuote,
-  sendError
-} from 'shared/utils';
-
-import { TYPES } from 'shared/config/types';
+import { Client, CommandInteractionOption, Message } from "discord.js";
+import { catchError, from, switchMap, of, map, tap, defer } from "rxjs";
 
 import axios from 'axios';
 
-@injectable()
-export class NhCommands {
+import { MessageInteraction } from "shared/models/interaction";
 
-  private _doujinFinderService: DoujinFinderService;
-  private readonly _quoteAPIUrl: string;
+import { doujinFinderService } from 'bot/services';
 
-  private _findEmoji;
-  private _lastSentMessage = '';
-  private _guildID: string;
+import {
+  interactionReply,
+  interactionReplyEmbed,
+  formatEmbed,
+  setEmbedData,
+  sendErrorEmbed
+} from 'shared/utils';
 
-  constructor(
-    @inject(TYPES.DoujinFinderService) doujinFinderService: DoujinFinderService,
-    @inject(TYPES.QuoteAPIUrl) quoteAPIUrl: string
-  ) {
-    this._doujinFinderService = doujinFinderService;
-    this._quoteAPIUrl = quoteAPIUrl;
-  }
+export const nhCommands = () => {
+  const _quoteAPIUrl: string = process.env.QUOTE_API;
+  let _guildID: string;
+
+  const {
+    findDoujinByTag,
+    findTagPage,
+    findDoujin
+  } = doujinFinderService();
 
 
   /**
-   * NH Commands Central
+   * Legacy Commands
    */
 
-  nhCommands(message: Message, client: Client) {
-    this._findEmoji = findEmoji(client);
-    this._lastSentMessage = message.content.toLowerCase();
-
-    this._guildID = message.guild.id;
+  const legacyCommands = (message: MessageInteraction, client: Client) => {
+    _guildID = message.guildId;
 
     switch (true) {
-      case this._lastSentMessage === '!nh -h':
-        return this._nhHelp(message, client);
+      case message.content === '!nh':
+        return _nhRandomDoujin(message);
 
-      case (this._lastSentMessage === '!nh' || this._lastSentMessage.includes('tag')):
-        return this._nhRandomTag(message);
+      case message.content.startsWith('!nh tag'):
+        return _nhRandomTag(message);
 
-      case this._lastSentMessage === '!nh disable':
-        return this._nhToggle(message, client, true);
+      case message.content.startsWith('!nh -h'):
+        return Promise.resolve();
 
-      case this._lastSentMessage === '!nh enable':
-        return this._nhToggle(message, client, false);
+      case message.content.startsWith('!nh disable'):
+        return _nhToggle(message, client, true);
 
-      case this._lastSentMessage.startsWith('!nh timer'):
-        return this._nhRandomTag(message);
+      case message.content.startsWith('!nh enable'):
+        return _nhToggle(message, client, false);
 
       default:
-        return this._nhDoujinByTag(message);
+        return _nhDoujinByTag(message);
     }
   }
 
 
   /**
-   * NH Help
+   * Slash Commands
    */
 
-  private _nhHelp(message: Message, client: Client) {
-    const peepoSmart = this._findEmoji('peepoSmart');
+  const slashCommands = (interaction: MessageInteraction, client: Client) => {
+    _guildID = interaction.guildId;
 
-    const embed = new MessageEmbed()
-      .setColor(0xec407a)
-      .setAuthor({
-        name: client.user.username,
-        iconURL: client.user.avatarURL()
-      })
-      .setTitle(`${peepoSmart} TrashBot NH Help ${peepoSmart}`)
-      .setFields([
-        {
-          name: 'Commands',
-          value: `
-            **!nh**
-            Search for a random NH tag and return it's page.
-            
-            **!nh <tag_names>**
-            Ex: *!nh yuri english*
-            Search for a specific tag and return a random doujin which contains the specified tag(s).
+    const subInteraction = interaction.options.data[0];
 
-            **!nh disable**
-            Disables the !nh auto timer, preventing the bot of sending random nh at any given amount of time.
+    switch (true) {
+      case subInteraction.name === 'random':
+        return _nhRandomDoujin(interaction);
 
-            **!nh enable**
-            Enables the !nh auto timer, allowing the bot of sending random nh at any given amount of time.
-          `,
-        },
-      ]);
+      case subInteraction.name === 'random-tag':
+        return _nhRandomTag(interaction);
 
-    return defer(() => from(message.channel.send({
-      embeds: [embed]
-    })))
+      case subInteraction.name === 'search-by-tag':
+        return _nhDoujinByTag(interaction, subInteraction.options);
+
+      case subInteraction.name === 'disable':
+        return _nhToggle(interaction, client, true);
+
+      case subInteraction.name === 'enable':
+        return _nhToggle(interaction, client, false);
+
+      default:
+        return Promise.resolve();
+    }
+  }
+
+
+  /**
+   * NH Random Doujin
+   */
+
+   const _nhRandomDoujin = (interaction: MessageInteraction) => {
+    return interactionReply(interaction, findDoujin());
   }
 
 
@@ -112,8 +99,8 @@ export class NhCommands {
    * NH Random Tag
    */
 
-  private _nhRandomTag(message: Message) {
-    return defer(() => from(message.channel.send(this._doujinFinderService.findTagPage())));
+  const _nhRandomTag = (interaction: MessageInteraction) => {
+    return interactionReply(interaction, findTagPage());
   }
 
 
@@ -121,33 +108,44 @@ export class NhCommands {
    * NH Doujin by Tag
    */
 
-  private _nhDoujinByTag(message: Message) {
-    const tag = this._lastSentMessage.slice(4);
-    const ayaya = this._findEmoji('AYAYA');
+   const _nhDoujinByTag = (interaction: MessageInteraction, options?: CommandInteractionOption[]) => {
+    const tags = options
+      ? options.find(({name}) => name === 'tags').value as string
+      : interaction.content.split(' ').slice(1).join(' ');
 
-    return defer(() => this._doujinFinderService.findDoujinByTag(tag).pipe(
-      switchMap(doujin => message.channel.send(doujin)),
-      catchError(err => message.channel.send(`${ayaya} It seems your tag search doesn't exist ${ayaya}`))
-    ));
+    return findDoujinByTag(tags).pipe(
+      switchMap(doujin => interactionReply(interaction, doujin)),
+      catchError(err => interactionReply(interaction, 'It seems your tag search doesn\'t exist'))
+    );
   }
+
 
   /**
    * NH Toggle
    */
 
-  private _nhToggle(message: Message, client: Client, disabled: boolean) {
-    return defer(() => from(axios.post(this._quoteAPIUrl, {
+   const _nhToggle = (interaction: MessageInteraction, client: Client, disabled: boolean) => {
+    return defer(() => from(axios.post(_quoteAPIUrl, {
       query: `mutation {
-        toggleNh(guildID: "${this._guildID}", disabled: ${disabled}) {
+        toggleNh(guildID: "${_guildID}", disabled: ${disabled}) {
           guildID,
           nhenDisable,
           nhenTimer
         }
       }`,
     })).pipe(
-      switchMap(({ data: { data: { toggleNh: serverConfig } } }) => formatQuote(`This server has ${disabled ? 'disabled' : 'enabled'} the !nh timer`)),
-      switchMap(quote => sendQuote(quote, message, client)),
-      catchError(err => sendError('Could not update the server config.', message, client))
+      map(() => setEmbedData(client, `This server has ${disabled ? 'disabled' : 'enabled'} the !nh timer`)),
+      map(embedData => formatEmbed(embedData, client)),
+      switchMap(embedMsg => interactionReplyEmbed(interaction, embedMsg)),
+      catchError(err => sendErrorEmbed(interaction, client, 'Could not update the server config.'))
     ));
   }
+  
+
+
+  /**
+   * Return Commands
+   */
+
+  return { legacyCommands, slashCommands };
 }
