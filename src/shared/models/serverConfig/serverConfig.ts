@@ -1,3 +1,4 @@
+import { TextChannel } from 'discord.js';
 import { BehaviorSubject } from 'rxjs';
 
 export type IServerConfig = {
@@ -7,8 +8,13 @@ export type IServerConfig = {
   nhenTimer: boolean;
 }
 
-export type IGetServerConfig = {
+export type IGuildServerConfig = {
   guildID: string;
+  config: IServerConfig | null;
+}
+
+export type IChannelServerConfig = {
+  channel: TextChannel;
   config: IServerConfig | null;
 }
 

@@ -1,6 +1,6 @@
 import { catchError, mergeMap, of } from 'rxjs';
 
-import { serverConfig } from './utils';
+import { serversConfig } from './utils';
 
 import {
   createSlashCommands,
@@ -16,7 +16,7 @@ export const readyEvent = (
   client: IClient
 ) => {
 
-  const { setServerConfig } = serverConfig();
+  const { setAndFetchServersConfig } = serversConfig();
   const { sendDoujin } = doujinSenderService();
 
   /**
@@ -25,9 +25,12 @@ export const readyEvent = (
   
   const clientReady = () => {
     client.once('ready', () => {
-      client.user.setActivity('!trash or !trash -h');
+      client.user.setActivity(process.env.DEV
+        ? 'Development Mode'  
+        : '!trash or !trash -h'
+      );
 
-      setServerConfig(client).pipe(
+      setAndFetchServersConfig(client).pipe(
         mergeMap(serverConfig => sendDoujin(serverConfig, client)),
         catchError(err => of(err))
       ).subscribe();

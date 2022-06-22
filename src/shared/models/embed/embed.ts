@@ -5,11 +5,14 @@ export type IEmbed = {
   author: string;
   authorAvatar: string;
   date: Date;
+  description?: string;
 }
 
 export type IEmbedHelp = {
-  title: string;
+  title?: string;
   author: string;
   authorAvatar: string;
   fields: EmbedFieldData[];
 }
+
+export type IEmbedFields = IEmbedHelp;

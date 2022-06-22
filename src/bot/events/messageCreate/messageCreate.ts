@@ -7,6 +7,9 @@ export const messageCreateEvent = (
   client: IClient
 ) => {
 
+  const literallyMe = process.env.ME;
+  const developmentMode = process.env.DEV;
+
   /**
    * Client Message Create
    */
@@ -15,6 +18,14 @@ export const messageCreateEvent = (
     client.on('messageCreate', (message: Message) => {
       if (message.author.bot) { return; }
       if (!message.content.startsWith('!')) { return; }
+
+      if (developmentMode && message.author.id !== literallyMe) {
+        message.channel.send({embeds: [{
+          image: {url: 'https://i.pinimg.com/474x/3a/06/4c/3a064c28f605779a453ff39f74eb3b22.jpg'}
+        }]});
+
+        return;
+      }
 
       const command = client.legacyCommands.get(message.content.split(' ')[0]) as ILegacyCommand;
 

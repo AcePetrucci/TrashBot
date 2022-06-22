@@ -10,12 +10,14 @@ import { IEmbed, IEmbedHelp } from 'shared/models';
 export const setEmbedData = (
   content: string,
   client: Client,
+  description?: string,
 ): IEmbed => {
   return {
     author: client.user.username,
-    authorAvatar: client.user.avatarURL(),
+    authorAvatar: client.user.displayAvatarURL(),
     text: content,
-    date: new Date()
+    date: new Date(),
+    description
   };
 }
 
@@ -26,7 +28,7 @@ export const setEmbedHelpData = (
 ): IEmbedHelp => {
   return {
     author: client.user.username,
-    authorAvatar: client.user.avatarURL(),
+    authorAvatar: client.user.displayAvatarURL(),
     title: `TrashBot ${title} Legacy Help`,
     fields: [{
       name: `This is the Legacy version of ${title} Commands`,
@@ -48,7 +50,7 @@ export const formatEmbed = (
     .setColor(0xec407a)
     .setAuthor({
       name: embedData.author,
-      iconURL: embedData.authorAvatar ?? client.user.avatarURL()
+      iconURL: embedData.authorAvatar ?? client.user.displayAvatarURL()
     })
     .setTitle(embedData.text.length > 256 ? '' : embedData.text)
     .setDescription(embedData.text.length < 256 ? '' : embedData.text)
@@ -68,7 +70,7 @@ export const formatEmbedHelp = (
     .setColor(0xec407a)
     .setAuthor({
       name: embedHelpData.author,
-      iconURL: embedHelpData.authorAvatar ?? client.user.avatarURL()
+      iconURL: embedHelpData.authorAvatar ?? client.user.displayAvatarURL()
     })
     .setTitle(embedHelpData.title)
     .setFields(embedHelpData.fields)
