@@ -5,7 +5,8 @@ import {
   getQuotesByIndexEvent,
   getQuotesByTextEvent,
   getQuotesListEvent,
-  getQuotesRatioEvent
+  getQuotesRatioEvent,
+  addQuoteEvent
 } from '../events';
 
 
@@ -13,7 +14,7 @@ import {
  * Get Quotes Slash Commands
  */
 
-export const getQuotesSlashCommands = (quoteAPIUrl: string) => {
+export const quotesSlashCommands = (quoteAPIUrl: string) => {
 
   let _guildID: string;
 
@@ -22,6 +23,8 @@ export const getQuotesSlashCommands = (quoteAPIUrl: string) => {
   const { getQuoteByText } = getQuotesByTextEvent();
   const { getQuoteList } = getQuotesListEvent();
   const { getQuoteRatio } = getQuotesRatioEvent();
+
+  const { addQuote } = addQuoteEvent();
 
 
   /**
@@ -48,6 +51,9 @@ export const getQuotesSlashCommands = (quoteAPIUrl: string) => {
 
       case subInteraction.name === 'ratio':
         return getQuoteRatio(interaction, client, _guildID, subInteraction.options);
+
+      case subInteraction.name === 'add':
+        return addQuote(interaction, client, _guildID, subInteraction.options);
 
       default:
         return Promise.resolve();

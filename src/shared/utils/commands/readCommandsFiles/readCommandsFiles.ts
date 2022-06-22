@@ -1,6 +1,11 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
+
+/**
+ * Commands Files Tracker
+ */
+
 export const readCommandsFiles = (type: string) => {
 
   const commandsPath = path.join(__dirname, '../../../../bot/commands');

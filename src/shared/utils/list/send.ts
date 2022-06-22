@@ -3,11 +3,12 @@ import { Client, Message } from 'discord.js';
 import {
   IEmbed,
   MessageInteraction,
-  IListType
+  IListType,
+  InteractionDeferred
 } from 'shared/models';
 
 import { formatEmbed, setEmbedData } from '../embed';
-import { interactionEditReplyEmbed } from '../interactionReply'; 
+import { interactionHandler } from '../interactionReply'; 
 
 
 /**
@@ -19,8 +20,12 @@ export const editListMessage = async (
   type: IListType,
   interaction: MessageInteraction,
   client: Client,
-  previousMessage?: void | Message<boolean>,
+  previousMessage?: Promise<InteractionDeferred>,
 ) => {
+  const {
+    interactionEditReplyEmbed
+  } = interactionHandler(interaction, client, previousMessage);
+
   const embedData: IEmbed = {
     ...setEmbedData(`${type} List: ${content}`, client),
     ...{
@@ -30,5 +35,5 @@ export const editListMessage = async (
   };
   const embedMsg = formatEmbed(embedData, client);
   
-  return interactionEditReplyEmbed(embedMsg, interaction, previousMessage);
+  return interactionEditReplyEmbed(embedMsg);
 }

@@ -4,6 +4,11 @@ import { IClient, ISlashCommand } from 'shared/models';
 
 import { readCommandsFiles } from '../readCommandsFiles';
 
+
+/**
+ * Slash Commands Loader
+ */
+
 export const loadSlashCommands = (client: IClient) => {
 
   client.slashCommands = new Collection();

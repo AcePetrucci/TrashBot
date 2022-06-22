@@ -1,6 +1,4 @@
-import { Message } from "discord.js";
-
-import { defer, from, Observable, of } from "rxjs"
+import { from, Observable, of } from "rxjs"
 import { map, switchMap, catchError, tap } from 'rxjs/operators';
 
 import axios from "axios";
@@ -14,9 +12,7 @@ import {
 import {
   formatQuote,
   formatEmbed,
-  interactionDeferEmbed,
-  interactionEditReplyEmbed,
-  editErrorEmbed
+  interactionHandler
 } from "shared/utils";
 
 
@@ -29,8 +25,6 @@ export const getQuotesRandomEvent = () => {
   const _quoteAPIUrl = process.env.QUOTE_API;
   const _random = (length: number) => Math.floor(Math.random() * length);
 
-  let _quoteDeferMessage: void | Message<boolean>;
-
 
   /**
    * Get Random Quote
@@ -41,13 +35,18 @@ export const getQuotesRandomEvent = () => {
     client: IClient,
     guildID: string,
   ) => {
-    return defer(() => interactionDeferEmbed('Retrieving quote...', interaction, client)).pipe(
-      tap(deferredInteraction => _quoteDeferMessage = deferredInteraction),
+    const {
+      interactionDeferEmbed,
+      interactionEditReplyEmbed,
+      interactionErrorEditReply
+    } = interactionHandler(interaction, client);
+
+    return interactionDeferEmbed('Retrieving quote...').pipe(
       switchMap(() => _fetchRandomQuote(guildID)),
       switchMap(quote => formatQuote(quote, interaction, client)),
       switchMap(quoteData => of(formatEmbed(quoteData, client))),
-      switchMap(quoteEmbed => interactionEditReplyEmbed(quoteEmbed, interaction, _quoteDeferMessage)),
-      catchError(err => editErrorEmbed('Could not find any quotes for this server', interaction, client, _quoteDeferMessage))
+      switchMap(quoteEmbed => interactionEditReplyEmbed(quoteEmbed)),
+      catchError(err => interactionErrorEditReply('Could not find any quotes for this server'))
     )
   }
 

@@ -1,12 +1,8 @@
-import { switchMap, map, defer, of } from "rxjs";
+import { of } from "rxjs";
 
 import { IClient, MessageInteraction } from "shared/models";
 
-import {
-  setEmbedData,
-  formatEmbed,
-  interactionReplyEmbed
-} from 'shared/utils';
+import { interactionHandler } from 'shared/utils';
 
 
 /**
@@ -20,10 +16,11 @@ export const nhUnavailableEvent = () => {
    */
 
    const nhUnavailable = (interaction: MessageInteraction, client: IClient) => {
-    return defer(() => of(setEmbedData('Unavailable Command', client))).pipe(
-      map(embedData => formatEmbed(embedData, client)),
-      switchMap(embedMsg => interactionReplyEmbed(embedMsg, interaction))
-    )
+    const {
+      interactionErrorReply
+    } = interactionHandler(interaction, client);
+
+    return of(interactionErrorReply('Unavailable Command'));
   }
 
 

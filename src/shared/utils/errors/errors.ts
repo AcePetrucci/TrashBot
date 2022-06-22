@@ -1,9 +1,9 @@
 import { Client, Message } from 'discord.js';
 
-import { MessageInteraction } from 'shared/models';
+import { MessageInteraction, InteractionDeferred } from 'shared/models';
 
 import { formatEmbed, setEmbedData } from '../embed';
-import { interactionReplyEmbed, interactionEditReplyEmbed } from '../interactionReply'; 
+import { interactionHandler } from '../interactionReply'; 
 
 
 /**
@@ -15,10 +15,12 @@ export const sendErrorEmbed = async (
   interaction: MessageInteraction,
   client: Client
 ) => {
+  const { interactionReplyEmbed } = interactionHandler(interaction, client);
+
   const embedData = setEmbedData(content, client);
   const embedMsg = formatEmbed(embedData, client);
   
-  return interactionReplyEmbed(embedMsg, interaction);
+  return interactionReplyEmbed(embedMsg);
 }
 
 
@@ -30,10 +32,12 @@ export const editErrorEmbed = async (
   content: string,
   interaction: MessageInteraction,
   client: Client,
-  previousMessage?: void | Message<boolean>,
+  previousMessage?: Promise<InteractionDeferred>,
 ) => {
+  const { interactionEditReplyEmbed } = interactionHandler(interaction, client, previousMessage);
+
   const embedData = setEmbedData(content, client);
   const embedMsg = formatEmbed(embedData, client);
   
-  return interactionEditReplyEmbed(embedMsg, interaction, previousMessage);
+  return interactionEditReplyEmbed(embedMsg);
 }

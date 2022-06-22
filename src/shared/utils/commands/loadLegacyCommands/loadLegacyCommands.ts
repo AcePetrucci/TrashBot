@@ -4,6 +4,11 @@ import { IClient, ILegacyCommand } from 'shared/models';
 
 import { readCommandsFiles } from '../readCommandsFiles';
 
+
+/**
+ * Legacy Commands Loader
+ */
+
 export const loadLegacyCommands = (client: IClient) => {
 
   client.legacyCommands = new Collection();

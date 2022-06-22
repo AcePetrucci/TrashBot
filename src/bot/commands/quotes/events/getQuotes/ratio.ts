@@ -2,10 +2,9 @@ import {
   CommandInteractionOption,
   EmbedFieldData,
   GuildMember,
-  Message
 } from "discord.js";
 
-import { defer, from, Observable } from "rxjs"
+import { from, Observable } from "rxjs"
 import { catchError, map, switchMap, tap } from 'rxjs/operators';
 
 import axios from "axios";
@@ -18,11 +17,9 @@ import {
 } from "shared/models"
 
 import {
-  interactionDeferEmbed,
-  interactionEditReplyEmbed,
-  editErrorEmbed,
   setEmbedRatioData,
   formatEmbedRatioData,
+  interactionHandler
 } from "shared/utils";
 
 
@@ -34,8 +31,6 @@ export const getQuotesRatioEvent = () => {
 
   const _quoteAPIUrl = process.env.QUOTE_API;
 
-  let _quoteDeferMessage: void | Message<boolean>;
-
   /**
    * Get Quote Ratio
    */
@@ -46,19 +41,24 @@ export const getQuotesRatioEvent = () => {
     guildID: string,
     options?: CommandInteractionOption[],
   ) => {
+    const {
+      interactionDeferEmbed,
+      interactionEditReplyEmbed,
+      interactionErrorEditReply
+    } = interactionHandler(interaction, client);
+
     const author = options
       ? options.find(({name}) => name === 'quote-author').member as GuildMember
       : interaction.mentions.members.first();
 
-    return defer(() => interactionDeferEmbed('Retrieving quote ratio...', interaction, client)).pipe(
-      tap(deferredInteraction => _quoteDeferMessage = deferredInteraction),
+    return interactionDeferEmbed('Retrieving quote ratio...').pipe(
       switchMap(() => _fetchAllQuotes(guildID)),
       map(quotes => _filterQuotes(quotes, author)),
       map(quoteRatio => _formatQuoteRatioMessage(quoteRatio)),
       map(quoteRatioFields => setEmbedRatioData(quoteRatioFields, author)),
       map(embedRatioData => formatEmbedRatioData(embedRatioData, client)),
-      switchMap(embedRatioMsg => interactionEditReplyEmbed(embedRatioMsg, interaction, _quoteDeferMessage)),
-      catchError(err => editErrorEmbed('Could not find any quotes for the mentioned user (or lack of)', interaction, client, _quoteDeferMessage))
+      switchMap(embedRatioMsg => interactionEditReplyEmbed(embedRatioMsg)),
+      catchError(err => interactionErrorEditReply('Could not find any quotes for the mentioned user (or lack of)'))
     )
   }
 

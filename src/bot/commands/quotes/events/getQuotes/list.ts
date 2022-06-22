@@ -1,6 +1,5 @@
-import { Message } from "discord.js";
-import { defer, from, Observable, zip } from "rxjs"
-import { map, switchMap, tap } from 'rxjs/operators';
+import { from, Observable, zip } from "rxjs"
+import { catchError, map, switchMap, tap } from 'rxjs/operators';
 
 import axios from "axios";
 
@@ -12,10 +11,10 @@ import {
 
 import {
   formatQuote,
-  interactionDeferEmbed,
   editListMessage,
   convertToList,
-  generateList
+  generateList,
+  interactionHandler
 } from "shared/utils";
 
 
@@ -26,7 +25,6 @@ import {
 export const getQuotesListEvent = () => {
 
   const _quoteAPIUrl = process.env.QUOTE_API;
-  let _quoteListMessage: void | Message<boolean>;
 
 
   /**
@@ -38,13 +36,19 @@ export const getQuotesListEvent = () => {
     client: IClient,
     guildID: string,
   ) => {
-    return defer(() => interactionDeferEmbed('Generating the list of quotes from this server...', interaction, client)).pipe(
-      tap(deferredInteraction => _quoteListMessage = deferredInteraction),
+    const {
+      interactionDeferEmbed,
+      interactionErrorEditReply,
+      quoteDeferredMessage
+    } = interactionHandler(interaction, client);
+
+    return interactionDeferEmbed('Generating the list of quotes from this server...').pipe(
       switchMap(() => _fetchAllQuotes(guildID)),
       switchMap(quotes => zip(quotes.map(quote => formatQuote(quote, interaction, client)))),
       switchMap(quotesData => convertToList(quotesData)),
       map(quoteList => generateList(quoteList, 'Quotes', interaction)),
-      map(quoteListFile => editListMessage(quoteListFile, 'Quotes', interaction, client, _quoteListMessage))
+      map(quoteListFile => editListMessage(quoteListFile, 'Quotes', interaction, client, quoteDeferredMessage)),
+      catchError(err => interactionErrorEditReply('Could not generate the list of quotes'))
     )
   }
 

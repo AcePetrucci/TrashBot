@@ -1,6 +1,6 @@
-import { CommandInteractionOption, Message } from "discord.js";
+import { CommandInteractionOption } from "discord.js";
 
-import { defer, from, Observable, of } from "rxjs"
+import { from, Observable } from "rxjs"
 import { catchError, map, switchMap, tap } from 'rxjs/operators';
 
 import axios from "axios";
@@ -14,9 +14,7 @@ import {
 import {
   formatQuote,
   formatEmbed,
-  interactionDeferEmbed,
-  interactionEditReplyEmbed,
-  editErrorEmbed
+  interactionHandler
 } from "shared/utils";
 
 
@@ -29,8 +27,6 @@ export const getQuotesByTextEvent = () => {
   const _quoteAPIUrl = process.env.QUOTE_API;
   const _random = (length: number) => Math.floor(Math.random() * length);
 
-  let _quoteDeferMessage: void | Message<boolean>;
-
 
   /**
    * Get Quote By Text
@@ -42,17 +38,22 @@ export const getQuotesByTextEvent = () => {
     guildID: string,
     options?: CommandInteractionOption[],
   ) => {
+    const {
+      interactionDeferEmbed,
+      interactionEditReplyEmbed,
+      interactionErrorEditReply
+    } = interactionHandler(interaction, client);
+
     const quoteText = options
       ? options.find(({name}) => name === 'quote-text').value as string
       : interaction.content.split(' ').slice(1).join(' ');
 
-    return defer(() => interactionDeferEmbed('Retrieving quote...', interaction, client)).pipe(
-      tap(deferredInteraction => _quoteDeferMessage = deferredInteraction),
+    return interactionDeferEmbed('Retrieving quote...').pipe(
       switchMap(_ => _fetchQuoteByText(quoteText, guildID)),
       switchMap(quote => formatQuote(quote, interaction, client)),
-      switchMap(quoteData => of(formatEmbed(quoteData, client))),
-      switchMap(quoteEmbed => interactionEditReplyEmbed(quoteEmbed, interaction, _quoteDeferMessage)),
-      catchError(err => editErrorEmbed('Could not find any quotes with the given quote text piece', interaction, client, _quoteDeferMessage))
+      map(quoteData => formatEmbed(quoteData, client)),
+      switchMap(quoteEmbed => interactionEditReplyEmbed(quoteEmbed)),
+      catchError(err => interactionErrorEditReply('Could not find any quotes with the given quote text piece'))
     )
   }
 

@@ -5,7 +5,7 @@ import { IClient, MessageInteraction } from "shared/models";
 import {
   setEmbedHelpData,
   formatEmbedHelp,
-  interactionReplyEmbed
+  interactionHandler
 } from 'shared/utils';
 
 
@@ -44,6 +44,8 @@ export const getQuotesHelpEvent = () => {
 
   const getQuotesHelp = (interaction: MessageInteraction, client: IClient) => {
 
+    const { interactionReplyEmbed } = interactionHandler(interaction, client);
+
     /**
      * Set Embed Help Data
      */
@@ -62,7 +64,7 @@ export const getQuotesHelpEvent = () => {
      * Return Embed Help Message
      */
 
-    return interactionReplyEmbed(embedHelpMessage, interaction);;
+    return interactionReplyEmbed(embedHelpMessage);
   }
 
 

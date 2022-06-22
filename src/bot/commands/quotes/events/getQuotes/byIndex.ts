@@ -1,6 +1,6 @@
-import { CommandInteractionOption, Message } from "discord.js";
+import { CommandInteractionOption } from "discord.js";
 
-import { defer, from, Observable, of } from "rxjs"
+import { from, Observable } from "rxjs"
 import { catchError, map, switchMap, tap } from 'rxjs/operators';
 
 import axios from "axios";
@@ -14,9 +14,7 @@ import {
 import {
   formatQuote,
   formatEmbed,
-  interactionDeferEmbed,
-  interactionEditReplyEmbed,
-  editErrorEmbed
+  interactionHandler
 } from "shared/utils";
 
 
@@ -27,7 +25,6 @@ import {
 export const getQuotesByIndexEvent = () => {
 
   const _quoteAPIUrl = process.env.QUOTE_API;
-  let _quoteDeferMessage: void | Message<boolean>;
 
 
   /**
@@ -40,17 +37,22 @@ export const getQuotesByIndexEvent = () => {
     guildID: string,
     options?: CommandInteractionOption[],
   ) => {
-    const quoteIndex = options
-      ? options.find(({name}) => name === 'quote-index').value as string
-      : interaction.content.split(' ')[1];
+    const {
+      interactionDeferEmbed,
+      interactionEditReplyEmbed,
+      interactionErrorEditReply
+    } = interactionHandler(interaction, client);
 
-    return defer(() => interactionDeferEmbed('Retrieving quote...', interaction, client)).pipe(
-      tap(deferredInteraction => _quoteDeferMessage = deferredInteraction),
-      switchMap(_ => _fetchQuoteByIndex(+quoteIndex, guildID)),
+    const quoteIndex = options
+      ? options.find(({name}) => name === 'quote-index').value as number
+      : +interaction.content.split(' ')[1];
+
+    return interactionDeferEmbed('Retrieving quote...').pipe(
+      switchMap(_ => _fetchQuoteByIndex(quoteIndex, guildID)),
       switchMap(quote => formatQuote(quote, interaction, client)),
-      switchMap(quoteData => of(formatEmbed(quoteData, client))),
-      switchMap(quoteEmbed => interactionEditReplyEmbed(quoteEmbed, interaction, _quoteDeferMessage)),
-      catchError(err => editErrorEmbed('It seems there is no quote with this index.', interaction, client, _quoteDeferMessage))
+      map(quoteData => formatEmbed(quoteData, client)),
+      switchMap(quoteEmbed => interactionEditReplyEmbed(quoteEmbed)),
+      catchError(err => interactionErrorEditReply('It seems there is no quote with this index.'))
     )
   }
 

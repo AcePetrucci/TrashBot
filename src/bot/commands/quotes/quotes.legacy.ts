@@ -1,11 +1,11 @@
 import { Client } from 'discord.js';
 import { defer, from } from 'rxjs';
 
-import { getQuotesCommands } from './getQuotes';
+import { quotesCommands } from './quotes';
 
 import { MessageInteraction } from "shared/models";
 
-export const getQuotesCommandsLegacy = () => {
+export const quotesCommandsLegacy = () => {
 
   /**
    * Data Legacy Commands
@@ -14,7 +14,9 @@ export const getQuotesCommandsLegacy = () => {
   const data = [
     '!quote',
     '!quoteratio',
-    '!quotelist'
+    '!quotelist',
+    '!addquote',
+    '!dquote'
   ]
 
 
@@ -23,7 +25,7 @@ export const getQuotesCommandsLegacy = () => {
    */
 
    const trigger = (message: MessageInteraction, client: Client) => {
-    const { legacyCommands } = getQuotesCommands();
+    const { legacyCommands } = quotesCommands();
 
     return defer(() => from(legacyCommands(message, client)));
   };
