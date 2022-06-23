@@ -6,7 +6,8 @@ import {
   getQuotesByTextEvent,
   getQuotesListEvent,
   getQuotesRatioEvent,
-  addQuoteEvent
+  addQuoteEvent,
+  deleteQuoteEvent
 } from '../events';
 
 
@@ -25,6 +26,8 @@ export const quotesSlashCommands = (quoteAPIUrl: string) => {
   const { getQuoteRatio } = getQuotesRatioEvent();
 
   const { addQuote } = addQuoteEvent();
+
+  const { deleteQuote } = deleteQuoteEvent();
 
 
   /**
@@ -54,6 +57,9 @@ export const quotesSlashCommands = (quoteAPIUrl: string) => {
 
       case subInteraction.name === 'add':
         return addQuote(interaction, client, _guildID, subInteraction.options);
+
+      case subInteraction.name === 'delete':
+        return deleteQuote(interaction, client, _guildID, subInteraction.options);
 
       default:
         return Promise.resolve();

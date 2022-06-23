@@ -1,6 +1,6 @@
 import { Client, MessageEmbed, EmbedFieldData } from 'discord.js';
 
-import { IEmbed, IEmbedHelp } from 'shared/models';
+import { IEmbed, IEmbedHelp, MessageInteraction } from 'shared/models';
 
 
 /**
@@ -10,14 +10,17 @@ import { IEmbed, IEmbedHelp } from 'shared/models';
 export const setEmbedData = (
   content: string,
   client: Client,
-  description?: string,
+  interaction?: MessageInteraction,
 ): IEmbed => {
   return {
-    author: client.user.username,
-    authorAvatar: client.user.displayAvatarURL(),
+    author: interaction
+      ? interaction.guild.name
+      : client.user.username,
+    authorAvatar: interaction
+      ? interaction.guild.iconURL()
+      : client.user.displayAvatarURL(),
     text: content,
     date: new Date(),
-    description
   };
 }
 

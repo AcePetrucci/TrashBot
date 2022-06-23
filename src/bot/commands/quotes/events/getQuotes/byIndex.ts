@@ -1,7 +1,7 @@
 import { CommandInteractionOption } from "discord.js";
 
 import { from, Observable } from "rxjs"
-import { catchError, map, switchMap, tap } from 'rxjs/operators';
+import { catchError, delay, map, switchMap, tap } from 'rxjs/operators';
 
 import axios from "axios";
 
@@ -12,10 +12,9 @@ import {
 } from "shared/models"
 
 import {
-  formatQuote,
-  formatEmbed,
-  interactionHandler
-} from "shared/utils";
+  interactionHandler,
+  quoteHandler
+} from 'bot/handlers';
 
 
 /**
@@ -38,21 +37,23 @@ export const getQuotesByIndexEvent = () => {
     options?: CommandInteractionOption[],
   ) => {
     const {
-      interactionDeferEmbed,
-      interactionEditReplyEmbed,
-      interactionErrorEditReply
+      deferEmbed,
+      editReplyEmbed,
+      errorEditReply
     } = interactionHandler(interaction, client);
+
+    const { formatQuote } = quoteHandler(interaction, client);
 
     const quoteIndex = options
       ? options.find(({name}) => name === 'quote-index').value as number
       : +interaction.content.split(' ')[1];
 
-    return interactionDeferEmbed('Retrieving quote...').pipe(
+    return deferEmbed('Retrieving quote...').pipe(
       switchMap(_ => _fetchQuoteByIndex(quoteIndex, guildID)),
-      switchMap(quote => formatQuote(quote, interaction, client)),
-      map(quoteData => formatEmbed(quoteData, client)),
-      switchMap(quoteEmbed => interactionEditReplyEmbed(quoteEmbed)),
-      catchError(err => interactionErrorEditReply('It seems there is no quote with this index.'))
+      switchMap(quote => formatQuote(quote)),
+      delay(500),
+      switchMap(quoteEmbed => editReplyEmbed(quoteEmbed)),
+      catchError(err => errorEditReply('It seems there is no quote with this index.'))
     )
   }
 

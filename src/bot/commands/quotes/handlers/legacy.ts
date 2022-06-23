@@ -7,7 +7,8 @@ import {
   getQuotesListEvent,
   getQuotesRatioEvent,
   getQuotesHelpEvent,
-  addQuoteEvent
+  addQuoteEvent,
+  deleteQuoteEvent
 } from '../events';
 
 
@@ -27,6 +28,8 @@ export const quotesLegacyCommands = (quoteAPIUrl: string) => {
   const { getQuotesHelp } = getQuotesHelpEvent();
 
   const { addQuote } = addQuoteEvent();
+
+  const { deleteQuote } = deleteQuoteEvent();
 
 
   /**
@@ -53,6 +56,9 @@ export const quotesLegacyCommands = (quoteAPIUrl: string) => {
 
       case message.content.startsWith('!addquote'):
         return addQuote(message, client, _guildID);
+
+      case message.content.startsWith('!dquote'):
+        return deleteQuote(message, client, _guildID);
 
       case isNaN(quoteIndex):
         return getQuoteByText(message, client, _guildID);

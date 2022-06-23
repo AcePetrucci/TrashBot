@@ -2,7 +2,9 @@ import { of } from "rxjs";
 
 import { IClient, MessageInteraction } from "shared/models";
 
-import { interactionHandler } from 'shared/utils';
+import {
+  interactionHandler
+} from 'bot/handlers';
 
 
 /**
@@ -16,11 +18,9 @@ export const nhUnavailableEvent = () => {
    */
 
    const nhUnavailable = (interaction: MessageInteraction, client: IClient) => {
-    const {
-      interactionErrorReply
-    } = interactionHandler(interaction, client);
+    const { errorReply } = interactionHandler(interaction, client);
 
-    return of(interactionErrorReply('Unavailable Command'));
+    return of(errorReply('Unavailable Command'));
   }
 
 

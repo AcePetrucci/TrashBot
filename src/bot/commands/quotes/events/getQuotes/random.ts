@@ -1,5 +1,5 @@
-import { from, Observable, of } from "rxjs"
-import { map, switchMap, catchError, tap } from 'rxjs/operators';
+import { from, Observable } from "rxjs"
+import { map, switchMap, catchError, delay, tap } from 'rxjs/operators';
 
 import axios from "axios";
 
@@ -10,10 +10,9 @@ import {
 } from "shared/models"
 
 import {
-  formatQuote,
-  formatEmbed,
-  interactionHandler
-} from "shared/utils";
+  interactionHandler,
+  quoteHandler
+} from 'bot/handlers';
 
 
 /**
@@ -36,17 +35,19 @@ export const getQuotesRandomEvent = () => {
     guildID: string,
   ) => {
     const {
-      interactionDeferEmbed,
-      interactionEditReplyEmbed,
-      interactionErrorEditReply
+      deferEmbed,
+      editReplyEmbed,
+      errorEditReply
     } = interactionHandler(interaction, client);
 
-    return interactionDeferEmbed('Retrieving quote...').pipe(
+    const { formatQuote } = quoteHandler(interaction, client);
+
+    return deferEmbed('Retrieving quote...').pipe(
       switchMap(() => _fetchRandomQuote(guildID)),
-      switchMap(quote => formatQuote(quote, interaction, client)),
-      switchMap(quoteData => of(formatEmbed(quoteData, client))),
-      switchMap(quoteEmbed => interactionEditReplyEmbed(quoteEmbed)),
-      catchError(err => interactionErrorEditReply('Could not find any quotes for this server'))
+      switchMap(quote => formatQuote(quote)),
+      delay(500),
+      switchMap(quoteEmbed => editReplyEmbed(quoteEmbed)),
+      catchError(err => errorEditReply('Could not find any quotes for this server'))
     )
   }
 

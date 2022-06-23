@@ -5,7 +5,7 @@ import {
 } from "discord.js";
 
 import { from, Observable } from "rxjs"
-import { catchError, map, switchMap, tap } from 'rxjs/operators';
+import { catchError, map, switchMap, delay, tap } from 'rxjs/operators';
 
 import axios from "axios";
 
@@ -19,8 +19,11 @@ import {
 import {
   setEmbedRatioData,
   formatEmbedRatioData,
-  interactionHandler
 } from "shared/utils";
+
+import {
+  interactionHandler
+} from 'bot/handlers';
 
 
 /**
@@ -42,23 +45,24 @@ export const getQuotesRatioEvent = () => {
     options?: CommandInteractionOption[],
   ) => {
     const {
-      interactionDeferEmbed,
-      interactionEditReplyEmbed,
-      interactionErrorEditReply
+      deferEmbed,
+      editReplyEmbed,
+      errorEditReply
     } = interactionHandler(interaction, client);
 
     const author = options
       ? options.find(({name}) => name === 'quote-author').member as GuildMember
       : interaction.mentions.members.first();
 
-    return interactionDeferEmbed('Retrieving quote ratio...').pipe(
+    return deferEmbed('Retrieving quote ratio...').pipe(
       switchMap(() => _fetchAllQuotes(guildID)),
       map(quotes => _filterQuotes(quotes, author)),
       map(quoteRatio => _formatQuoteRatioMessage(quoteRatio)),
       map(quoteRatioFields => setEmbedRatioData(quoteRatioFields, author)),
       map(embedRatioData => formatEmbedRatioData(embedRatioData, client)),
-      switchMap(embedRatioMsg => interactionEditReplyEmbed(embedRatioMsg)),
-      catchError(err => interactionErrorEditReply('Could not find any quotes for the mentioned user (or lack of)'))
+      delay(500),
+      switchMap(embedRatioMsg => editReplyEmbed(embedRatioMsg)),
+      catchError(err => errorEditReply('Could not find any quotes for the mentioned user (or lack of)'))
     )
   }
 

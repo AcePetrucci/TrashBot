@@ -1,7 +1,7 @@
 import { CommandInteractionOption } from "discord.js";
 
-import { from, Observable, of } from "rxjs"
-import { catchError, map, switchMap, tap } from 'rxjs/operators';
+import { from, Observable } from "rxjs"
+import { catchError, map, switchMap, delay, tap } from 'rxjs/operators';
 
 import axios from "axios";
 
@@ -12,10 +12,9 @@ import {
 } from "shared/models"
 
 import {
-  formatQuote,
-  formatEmbed,
-  interactionHandler
-} from "shared/utils";
+  interactionHandler,
+  quoteHandler
+} from 'bot/handlers';
 
 
 /**
@@ -38,25 +37,32 @@ export const addQuoteEvent = () => {
     options?: CommandInteractionOption[],
   ) => {
     const {
-      interactionDeferEmbed,
-      interactionEditReplyEmbed,
-      interactionErrorEditReply
+      deferEmbed,
+      editReplyEmbed,
+      errorEditReply,
+      errorReply
     } = interactionHandler(interaction, client);
+
+    const { formatQuote } = quoteHandler(interaction, client);
 
     const quoteText = options
       ? options.find(({name}) => name === 'quote-text').value as string
-      : interaction.content.split(' ').slice(1).join(' ');
+      : interaction.content.split(' ').slice(1, -2).join(' ');
 
     const quoteAuthor = options
       ? options.find(({name}) => name === 'quote-author').value as string
-      : quoteText.split(' - ').slice(1)[0];
+      : interaction.mentions.members?.first()?.id ?? interaction.author.id;
 
-    return interactionDeferEmbed('Adding quote...').pipe(
+    if (!quoteText) {
+      return errorReply('Could not add quote. Maybe you messed up the command?');
+    }
+
+    return deferEmbed('Adding quote...').pipe(
       switchMap(_ => _addQuote(quoteText, quoteAuthor, guildID)),
-      switchMap(quote => formatQuote(quote, interaction, client)),
-      switchMap(quoteData => of(formatEmbed(quoteData, client))),
-      switchMap(quoteEmbed => interactionEditReplyEmbed(quoteEmbed)),
-      catchError(err => interactionErrorEditReply('Could not add quote. Maybe you messed up the command?'))
+      switchMap(quote => formatQuote(quote)),
+      delay(500),
+      switchMap(quoteEmbed => editReplyEmbed(quoteEmbed)),
+      catchError(err => errorEditReply('Could not add quote. Maybe you messed up the command?'))
     )
   }
 

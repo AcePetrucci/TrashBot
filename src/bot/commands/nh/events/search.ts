@@ -1,11 +1,13 @@
 import { CommandInteractionOption } from "discord.js";
-import { catchError, switchMap } from "rxjs";
+import { switchMap, catchError, delay } from 'rxjs/operators';
 
 import { doujinFinderService } from 'bot/services';
 
 import { MessageInteraction } from "shared/models";
 
-import { interactionHandler } from 'shared/utils';
+import {
+  interactionHandler
+} from 'bot/handlers';
 
 
 /**
@@ -27,14 +29,15 @@ export const nhSearchEvents = () => {
 
   const nhRandomDoujin = (interaction: MessageInteraction) => {
     const {
-      interactionDefer,
-      interactionEditReply,
-      interactionErrorEditReply
+      defer,
+      editReply,
+      errorEditReply
     } = interactionHandler(interaction);
 
-    return interactionDefer('Retrieving a random doujin...').pipe(
-      switchMap(() => interactionEditReply(findDoujin())),
-      catchError(err => interactionErrorEditReply('Something gone wrong while trying to get a doujin :c'))
+    return defer('Retrieving a random doujin...').pipe(
+      delay(500),
+      switchMap(() => editReply(findDoujin())),
+      catchError(err => errorEditReply('Something gone wrong while trying to get a doujin :c'))
     );
   }
 
@@ -45,14 +48,15 @@ export const nhSearchEvents = () => {
 
   const nhRandomTag = (interaction: MessageInteraction) => {
     const {
-      interactionDefer,
-      interactionEditReply,
-      interactionErrorEditReply
+      defer,
+      editReply,
+      errorEditReply
     } = interactionHandler(interaction);
 
-    return interactionDefer('Retrieving a random tag...').pipe(
-      switchMap(() => interactionEditReply(findTagPage())),
-      catchError(err => interactionErrorEditReply('Something gone wrong while trying to get a tag :c'))
+    return defer('Retrieving a random tag...').pipe(
+      delay(500),
+      switchMap(() => editReply(findTagPage())),
+      catchError(err => errorEditReply('Something gone wrong while trying to get a tag :c'))
     );
   }
 
@@ -63,19 +67,20 @@ export const nhSearchEvents = () => {
 
    const nhDoujinByTag = (interaction: MessageInteraction, options?: CommandInteractionOption[]) => {
     const {
-      interactionDefer,
-      interactionEditReply,
-      interactionErrorEditReply
+      defer,
+      editReply,
+      errorEditReply
     } = interactionHandler(interaction);
 
     const tags = options
       ? options.find(({name}) => name === 'tags').value as string
       : interaction.content.split(' ').slice(1).join(' ');
 
-    return interactionDefer('Retrieving a doujin with the mentioned tag(s)...').pipe(
+    return defer('Retrieving a doujin with the mentioned tag(s)...').pipe(
       switchMap(() => findDoujinByTag(tags)),
-      switchMap(doujin => interactionEditReply(doujin)),
-      catchError(err => interactionErrorEditReply('It seems your tag search doesn\'t exist'))
+      delay(500),
+      switchMap(doujin => editReply(doujin)),
+      catchError(err => errorEditReply('It seems your tag search doesn\'t exist'))
     );
   }
 

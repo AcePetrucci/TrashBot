@@ -1,4 +1,5 @@
-import { catchError, from, switchMap, map } from "rxjs";
+import { from } from 'rxjs';
+import { catchError, switchMap, map, delay } from "rxjs/operators";
 
 import axios from 'axios';
 
@@ -7,8 +8,11 @@ import { IClient, MessageInteraction } from "shared/models";
 import {
   formatEmbed,
   setEmbedData,
-  interactionHandler
 } from 'shared/utils';
+
+import {
+  interactionHandler
+} from 'bot/handlers';
 
 
 /**
@@ -28,17 +32,18 @@ export const nhToggleEvent = (quoteAPIUrl: string) => {
     disabled: boolean
   ) => {
     const {
-      interactionDeferEmbed,
-      interactionEditReplyEmbed,
-      interactionErrorEditReply
+      deferEmbed,
+      editReplyEmbed,
+      errorEditReply
     } = interactionHandler(interaction, client);
 
-    return interactionDeferEmbed('Toggling server\'s NH settings...').pipe(
+    return deferEmbed('Toggling server\'s NH settings...').pipe(
       switchMap(() => _setNhToggle(guildID, disabled)),
       map(() => setEmbedData(`This server has ${disabled ? 'disabled' : 'enabled'} the !nh timer`, client)),
       map(embedData => formatEmbed(embedData, client)),
-      switchMap(embedMsg => interactionEditReplyEmbed(embedMsg)),
-      catchError(err => interactionErrorEditReply('Could not update the server settings'))
+      delay(500),
+      switchMap(embedMsg => editReplyEmbed(embedMsg)),
+      catchError(err => errorEditReply('Could not update the server settings'))
     )
   }
 

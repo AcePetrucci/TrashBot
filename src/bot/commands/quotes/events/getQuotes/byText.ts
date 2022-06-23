@@ -1,7 +1,7 @@
 import { CommandInteractionOption } from "discord.js";
 
 import { from, Observable } from "rxjs"
-import { catchError, map, switchMap, tap } from 'rxjs/operators';
+import { catchError, map, switchMap, delay, tap } from 'rxjs/operators';
 
 import axios from "axios";
 
@@ -12,10 +12,9 @@ import {
 } from "shared/models"
 
 import {
-  formatQuote,
-  formatEmbed,
-  interactionHandler
-} from "shared/utils";
+  interactionHandler,
+  quoteHandler
+} from 'bot/handlers';
 
 
 /**
@@ -39,21 +38,23 @@ export const getQuotesByTextEvent = () => {
     options?: CommandInteractionOption[],
   ) => {
     const {
-      interactionDeferEmbed,
-      interactionEditReplyEmbed,
-      interactionErrorEditReply
+      deferEmbed,
+      editReplyEmbed,
+      errorEditReply
     } = interactionHandler(interaction, client);
+
+    const { formatQuote } = quoteHandler(interaction, client);
 
     const quoteText = options
       ? options.find(({name}) => name === 'quote-text').value as string
       : interaction.content.split(' ').slice(1).join(' ');
 
-    return interactionDeferEmbed('Retrieving quote...').pipe(
+    return deferEmbed('Retrieving quote...').pipe(
       switchMap(_ => _fetchQuoteByText(quoteText, guildID)),
-      switchMap(quote => formatQuote(quote, interaction, client)),
-      map(quoteData => formatEmbed(quoteData, client)),
-      switchMap(quoteEmbed => interactionEditReplyEmbed(quoteEmbed)),
-      catchError(err => interactionErrorEditReply('Could not find any quotes with the given quote text piece'))
+      switchMap(quote => formatQuote(quote)),
+      delay(500),
+      switchMap(quoteEmbed => editReplyEmbed(quoteEmbed)),
+      catchError(err => errorEditReply('Could not find any quotes with the given quote text piece'))
     )
   }
 

@@ -24,7 +24,7 @@ export const readyEvent = (
    */
   
   const clientReady = () => {
-    client.once('ready', () => {
+    client.on('ready', () => {
       client.user.setActivity(process.env.DEV
         ? 'Development Mode'  
         : '!trash or !trash -h'

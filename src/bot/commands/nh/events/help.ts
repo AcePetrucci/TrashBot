@@ -5,8 +5,11 @@ import { IClient, MessageInteraction } from "shared/models";
 import {
   setEmbedHelpData,
   formatEmbedHelp,
-  interactionReplyEmbed
 } from 'shared/utils';
+
+import {
+  interactionHandler
+} from 'bot/handlers';
 
 
 /**
@@ -39,6 +42,8 @@ export const nhHelpEvent = () => {
 
   const nhHelp = (interaction: MessageInteraction, client: IClient) => {
 
+    const { replyEmbed } = interactionHandler(interaction, client);
+
     /**
      * Set Embed Help Data
      */
@@ -57,7 +62,7 @@ export const nhHelpEvent = () => {
      * Return Embed Help Message
      */
 
-    return interactionReplyEmbed(embedHelpMessage, interaction);;
+    return replyEmbed(embedHelpMessage);;
   }
 
 
