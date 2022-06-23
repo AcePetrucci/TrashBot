@@ -1,5 +1,5 @@
 import { from, Observable } from "rxjs"
-import { catchError, map, switchMap, delay, tap } from 'rxjs/operators';
+import { catchError, map, switchMap, tap } from 'rxjs/operators';
 
 import axios from "axios";
 
@@ -50,7 +50,6 @@ export const getQuotesListEvent = () => {
     return deferEmbed('Generating the list of quotes from this server...').pipe(
       switchMap(() => _fetchAllQuotes(guildID)),
       switchMap(quotes => prepareList(quotes, setQuoteData)),
-      delay(500),
       map(quoteListFile => listEditReply(quoteListFile)),
       catchError(err => errorEditReply('Could not generate the list of quotes'))
     )

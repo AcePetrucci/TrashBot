@@ -1,5 +1,5 @@
 import { CommandInteractionOption } from "discord.js";
-import { switchMap, catchError, delay } from 'rxjs/operators';
+import { switchMap, catchError } from 'rxjs/operators';
 
 import { doujinFinderService } from 'bot/services';
 
@@ -35,7 +35,6 @@ export const nhSearchEvents = () => {
     } = interactionHandler(interaction);
 
     return defer('Retrieving a random doujin...').pipe(
-      delay(500),
       switchMap(() => editReply(findDoujin())),
       catchError(err => errorEditReply('Something gone wrong while trying to get a doujin :c'))
     );
@@ -54,7 +53,6 @@ export const nhSearchEvents = () => {
     } = interactionHandler(interaction);
 
     return defer('Retrieving a random tag...').pipe(
-      delay(500),
       switchMap(() => editReply(findTagPage())),
       catchError(err => errorEditReply('Something gone wrong while trying to get a tag :c'))
     );
@@ -78,7 +76,6 @@ export const nhSearchEvents = () => {
 
     return defer('Retrieving a doujin with the mentioned tag(s)...').pipe(
       switchMap(() => findDoujinByTag(tags)),
-      delay(500),
       switchMap(doujin => editReply(doujin)),
       catchError(err => errorEditReply('It seems your tag search doesn\'t exist'))
     );

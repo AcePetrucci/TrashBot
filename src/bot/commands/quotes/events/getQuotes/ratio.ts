@@ -5,7 +5,7 @@ import {
 } from "discord.js";
 
 import { from, Observable } from "rxjs"
-import { catchError, map, switchMap, delay, tap } from 'rxjs/operators';
+import { catchError, map, switchMap, tap } from 'rxjs/operators';
 
 import axios from "axios";
 
@@ -60,7 +60,6 @@ export const getQuotesRatioEvent = () => {
       map(quoteRatio => _formatQuoteRatioMessage(quoteRatio)),
       map(quoteRatioFields => setEmbedRatioData(quoteRatioFields, author)),
       map(embedRatioData => formatEmbedRatioData(embedRatioData, client)),
-      delay(500),
       switchMap(embedRatioMsg => editReplyEmbed(embedRatioMsg)),
       catchError(err => errorEditReply('Could not find any quotes for the mentioned user (or lack of)'))
     )

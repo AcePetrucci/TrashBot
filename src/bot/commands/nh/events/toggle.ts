@@ -1,5 +1,5 @@
 import { from } from 'rxjs';
-import { catchError, switchMap, map, delay } from "rxjs/operators";
+import { catchError, switchMap, map } from "rxjs/operators";
 
 import axios from 'axios';
 
@@ -41,7 +41,6 @@ export const nhToggleEvent = (quoteAPIUrl: string) => {
       switchMap(() => _setNhToggle(guildID, disabled)),
       map(() => setEmbedData(`This server has ${disabled ? 'disabled' : 'enabled'} the !nh timer`, client)),
       map(embedData => formatEmbed(embedData, client)),
-      delay(500),
       switchMap(embedMsg => editReplyEmbed(embedMsg)),
       catchError(err => errorEditReply('Could not update the server settings'))
     )

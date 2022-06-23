@@ -1,7 +1,7 @@
 import { CommandInteractionOption } from "discord.js";
 
 import { from, Observable } from "rxjs"
-import { catchError, map, switchMap, delay, tap } from 'rxjs/operators';
+import { catchError, map, switchMap, tap } from 'rxjs/operators';
 
 import axios from "axios";
 
@@ -60,7 +60,6 @@ export const addQuoteEvent = () => {
     return deferEmbed('Adding quote...').pipe(
       switchMap(_ => _addQuote(quoteText, quoteAuthor, guildID)),
       switchMap(quote => formatQuote(quote)),
-      delay(500),
       switchMap(quoteEmbed => editReplyEmbed(quoteEmbed)),
       catchError(err => errorEditReply('Could not add quote. Maybe you messed up the command?'))
     )

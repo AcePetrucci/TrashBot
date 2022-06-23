@@ -1,5 +1,5 @@
 import { from, Observable } from "rxjs"
-import { map, switchMap, catchError, delay, tap } from 'rxjs/operators';
+import { map, switchMap, catchError, tap } from 'rxjs/operators';
 
 import axios from "axios";
 
@@ -45,7 +45,6 @@ export const getQuotesRandomEvent = () => {
     return deferEmbed('Retrieving quote...').pipe(
       switchMap(() => _fetchRandomQuote(guildID)),
       switchMap(quote => formatQuote(quote)),
-      delay(500),
       switchMap(quoteEmbed => editReplyEmbed(quoteEmbed)),
       catchError(err => errorEditReply('Could not find any quotes for this server'))
     )

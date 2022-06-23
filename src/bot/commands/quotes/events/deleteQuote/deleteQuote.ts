@@ -1,7 +1,7 @@
 import { CommandInteractionOption } from "discord.js";
 
 import { from, Observable } from "rxjs"
-import { catchError, map, switchMap, delay, tap } from 'rxjs/operators';
+import { catchError, map, switchMap, tap } from 'rxjs/operators';
 
 import axios from "axios";
 
@@ -48,7 +48,6 @@ export const deleteQuoteEvent = () => {
       switchMap(_ => _deleteQuote(quoteIndex, guildID)),
       map(quoteIndex => setEmbedData(`Quote #${quoteIndex} has been deleted`, client, interaction)),
       map(quote => formatEmbed(quote, client)),
-      delay(500),
       switchMap(quoteEmbed => editReplyEmbed(quoteEmbed)),
       catchError(err => errorEditReply('Could not delete quote. Maybe you messed up the command?'))
     )

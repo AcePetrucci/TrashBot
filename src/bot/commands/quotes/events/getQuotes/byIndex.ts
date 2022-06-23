@@ -1,7 +1,7 @@
 import { CommandInteractionOption } from "discord.js";
 
 import { from, Observable } from "rxjs"
-import { catchError, delay, map, switchMap, tap } from 'rxjs/operators';
+import { catchError, map, switchMap, tap } from 'rxjs/operators';
 
 import axios from "axios";
 
@@ -49,9 +49,8 @@ export const getQuotesByIndexEvent = () => {
       : +interaction.content.split(' ')[1];
 
     return deferEmbed('Retrieving quote...').pipe(
-      switchMap(_ => _fetchQuoteByIndex(quoteIndex, guildID)),
+      switchMap(() => _fetchQuoteByIndex(quoteIndex, guildID)),
       switchMap(quote => formatQuote(quote)),
-      delay(500),
       switchMap(quoteEmbed => editReplyEmbed(quoteEmbed)),
       catchError(err => errorEditReply('It seems there is no quote with this index.'))
     )

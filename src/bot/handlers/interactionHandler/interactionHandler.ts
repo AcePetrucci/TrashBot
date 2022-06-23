@@ -1,5 +1,5 @@
 import { Message, MessageEmbed } from "discord.js";
-import { of } from 'rxjs';
+import { of, switchMap } from 'rxjs';
 
 import {
   IClient,
@@ -35,7 +35,9 @@ export const interactionHandler = (
       ? interaction.deferReply()
       : interaction.channel.send(content);
 
-    return of(interactionInstance.deferredMessage);
+    return of(interactionInstance.deferredMessage).pipe(
+      switchMap(async deferredMessage => await deferredMessage)
+    );
   }
 
   const deferEmbed = (content: string) => {
@@ -46,7 +48,9 @@ export const interactionHandler = (
       ? interaction.deferReply()
       : interaction.channel.send({embeds: [embedTempMessage]});
 
-    return of(interactionInstance.deferredMessage);
+    return of(interactionInstance.deferredMessage).pipe(
+      switchMap(async deferredMessage => await deferredMessage)
+    );
   }
 
 

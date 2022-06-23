@@ -1,7 +1,7 @@
 import { CommandInteractionOption } from "discord.js";
 
 import { from, Observable } from "rxjs"
-import { catchError, map, switchMap, delay, tap } from 'rxjs/operators';
+import { catchError, map, switchMap, tap } from 'rxjs/operators';
 
 import axios from "axios";
 
@@ -52,7 +52,6 @@ export const getQuotesByTextEvent = () => {
     return deferEmbed('Retrieving quote...').pipe(
       switchMap(_ => _fetchQuoteByText(quoteText, guildID)),
       switchMap(quote => formatQuote(quote)),
-      delay(500),
       switchMap(quoteEmbed => editReplyEmbed(quoteEmbed)),
       catchError(err => errorEditReply('Could not find any quotes with the given quote text piece'))
     )
