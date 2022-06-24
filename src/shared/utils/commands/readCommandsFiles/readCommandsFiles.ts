@@ -24,7 +24,7 @@ export const readCommandsFiles = (type: string) => {
     
     const subDirectory = multipleDirs
       ? subDir.flatMap(dir => flattenCommandsPath(path, dir))
-      : fs.readdirSync(path.concat(`\\${subDir}`));
+      : fs.readdirSync(path.concat(`/${subDir}`));
 
     const subDirFiles: string[] = subDirectory.filter(file => (
       file.endsWith('.slash.js') || file.endsWith('.legacy.js')
@@ -33,9 +33,9 @@ export const readCommandsFiles = (type: string) => {
     return !!subDirFiles.length
       ? subDirFiles.flatMap(file => multipleDirs
         ? file
-        : path.concat(`\\${subDir}\\${file}`)
+        : path.concat(`/${subDir}/${file}`)
       )
-      : flattenCommandsPath(path.concat(`\\${subDir}`), subDirectory)
+      : flattenCommandsPath(path.concat(`/${subDir}`), subDirectory)
   }
 
   const flattenedCommands = commandsDir
