@@ -3,7 +3,8 @@ import { Client } from 'discord.js';
 import {
   readyEvent,
   messageCreateEvent,
-  interactionCreateEvent
+  interactionCreateEvent,
+  guildCreateEvent
 } from 'bot/events';
 
 import { IClient } from 'shared/models';
@@ -22,6 +23,7 @@ export const TrashBot = () => {
   const { clientReady } = readyEvent(client);
   const { clientMessageCreate } = messageCreateEvent(client);
   const { clientInteractionCreate } = interactionCreateEvent(client);
+  const { serverJoin } = guildCreateEvent(client);
 
 
   /**
@@ -35,6 +37,13 @@ export const TrashBot = () => {
      */
 
     clientReady();
+
+
+    /**
+     * Server Join
+     */
+
+    serverJoin();
 
 
     /**

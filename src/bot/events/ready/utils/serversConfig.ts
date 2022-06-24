@@ -24,7 +24,7 @@ export const serversConfig = () => {
 
     return defer(() => from(_guildIDs).pipe(
       mergeMap(guildID => _fetchServerConfig(guildID)),
-      mergeMap(server => _setServerConfig(server))
+      mergeMap(server => setServerConfig(server))
     ));
   }
 
@@ -44,7 +44,7 @@ export const serversConfig = () => {
    * Set Server Config
    */
 
-   const _setServerConfig = (server: IGuildServerConfig): Observable<IServerConfig> => {
+   const setServerConfig = (server: IGuildServerConfig): Observable<IServerConfig> => {
     return !!server.config
       ? of(server.config)
       : createServerConfig(server.guildID);
@@ -55,5 +55,5 @@ export const serversConfig = () => {
    * Return Server Config
    */
 
-  return { setAndFetchServersConfig };
+  return { setAndFetchServersConfig, setServerConfig };
 }
