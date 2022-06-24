@@ -48,11 +48,15 @@ export const getCustomCommandEvent = () => {
 
     const commandName = options
       ? options.find(({name}) => name === 'name').value as string
-      : interaction.content.split('!')[1];
+      : interaction.content.split('!')[1].split(' ')[0];
+
+    const commandParams = options
+      ? (options.find(({name}) => name === 'params')?.value as string)?.split(' ')
+      : interaction.content.split(' ').slice(1);
 
     return deferEmbed('Retrieving command...').pipe(
       switchMap(_ => _fetchCommand(commandName, guildID)),
-      map(command => formatCustom(command)),
+      map(command => formatCustom(command, commandParams)),
       switchMap(commandEmbed => editReplyEmbed(commandEmbed)),
       catchError(err => errorEditReply('Could not find any commands with the given command name'))
     )
@@ -72,7 +76,8 @@ export const getCustomCommandEvent = () => {
         findCommand(commandName: "${commandName}", guildID: "${guildID}") {
           commandName,
           commandText,
-          createdAt
+          createdAt,
+          authorID
         }
       }`,
     })).pipe(

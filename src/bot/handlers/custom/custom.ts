@@ -29,10 +29,50 @@ export const customHandler = (
 
   const formatCustom = memoize((
     command: ICustom,
+    commandParams?: string[]
   ) => {
+    if (command.commandText && command.authorID) {
+      command.commandText = _getCommadsCustomParams(command, commandParams);
+    }
+
     const commandData = _setCustomData(command);
 
     return formatCustomEmbed(commandData, client);
+  })
+
+
+  /**
+   * Command Custom Params
+   */
+
+  const _getCommadsCustomParams = memoize((
+    command: ICustom,
+    commandParams?: string[]
+  ) => {
+    const textParams = [
+      ...new Set(command.commandText.split(' ')
+        .filter(excerpt => excerpt.startsWith('${'))
+        .map(textParam => textParam.replace(',', '')))
+    ];
+
+    if (textParams.length && !commandParams?.length) {
+      return 'This custom command needs additional parameters';
+    }
+
+    const paramsMap = new Map();
+
+    textParams.forEach((textParam, textParamIndex) => {
+      paramsMap.set(textParam, commandParams.at(textParamIndex).replace(',', ''))
+    });
+
+    const parsedCommand = command.commandText.split(' ')
+      .map(excerpt => excerpt.startsWith('${')
+        ? paramsMap.get(excerpt).concat(excerpt.includes(',') ? ',' : '')
+        : excerpt
+      )
+      .join(' ');
+
+    return parsedCommand;
   })
 
 

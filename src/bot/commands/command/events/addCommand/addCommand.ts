@@ -88,7 +88,7 @@ export const addCustomCommandEvent = () => {
         }) {
           commandName,
           commandText,
-          createdAt,
+          createdAt
         }
       }`,
     })).pipe(

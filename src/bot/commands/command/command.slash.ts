@@ -34,6 +34,10 @@ export const customCommandsSlash = () => {
         .setDescription('dance')
         .setRequired(true)
       )
+      .addStringOption(option => option
+        .setName('params')
+        .setDescription('X, Y')
+      )
     );
 
     return cmd;
