@@ -2,14 +2,7 @@ import { EmbedFieldData } from 'discord.js';
 
 import { IClient, MessageInteraction } from "shared/models";
 
-import {
-  setEmbedHelpData,
-  formatEmbedHelp,
-} from 'shared/utils';
-
-import {
-  interactionHandler
-} from 'bot/handlers';
+import { helpHandler } from 'bot/handlers';
 
 
 /**
@@ -42,27 +35,14 @@ export const nhHelpEvent = () => {
 
   const nhHelp = (interaction: MessageInteraction, client: IClient) => {
 
-    const { replyEmbed } = interactionHandler(interaction, client);
+    const { helpReply } = helpHandler(interaction, client);
 
-    /**
-     * Set Embed Help Data
-     */
-
-    const embedHelpData = setEmbedHelpData('NH', embedField, client);
-
-
-    /**
-     * Format Embed Help Message
-     */
-
-    const embedHelpMessage = formatEmbedHelp(embedHelpData, client);
-
-
+    
     /**
      * Return Embed Help Message
      */
 
-    return replyEmbed(embedHelpMessage);;
+    return helpReply(embedField, 'NH');
   }
 
 

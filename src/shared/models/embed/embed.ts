@@ -3,7 +3,7 @@ import { EmbedFieldData } from "discord.js";
 export type IEmbed = {
   text: string;
   author: string;
-  authorAvatar: string;
+  authorAvatar?: string;
   date: Date;
   description?: string;
 }
@@ -15,4 +15,10 @@ export type IEmbedHelp = {
   fields: EmbedFieldData[];
 }
 
-export type IEmbedFields = IEmbedHelp;
+export type IEmbedCustom = {
+  text?: string;
+  author?: string;
+  authorAvatar?: string;
+  date: Date;
+  image?: string;
+}

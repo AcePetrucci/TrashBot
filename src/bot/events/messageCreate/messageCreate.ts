@@ -3,6 +3,8 @@ import { catchError, of } from 'rxjs';
 
 import { IClient, ILegacyCommand } from 'shared/models';
 
+import { isLetter } from 'shared/utils';
+
 export const messageCreateEvent = (
   client: IClient
 ) => {
@@ -16,8 +18,11 @@ export const messageCreateEvent = (
   
   const clientMessageCreate = () => {
     client.on('messageCreate', (message: Message) => {
-      if (message.author.bot) { return; }
-      if (!message.content.startsWith('!')) { return; }
+      if (
+        message.author.bot
+        || !message.content.startsWith('!')
+        || !isLetter(message.content.charAt(1))
+      ) { return; }
 
       if (developmentMode && message.author.id !== literallyMe) {
         message.channel.send({embeds: [{
@@ -27,7 +32,11 @@ export const messageCreateEvent = (
         return;
       }
 
-      const command = client.legacyCommands.get(message.content.split(' ')[0]) as ILegacyCommand;
+      let command = client.legacyCommands.get(message.content.split(' ')[0]) as ILegacyCommand;
+      
+      if (!command) {
+        command = client.legacyCommands.get('!') as ILegacyCommand;
+      }
 
       command.trigger(message, client).pipe(
         catchError(err => of(err))

@@ -4,3 +4,4 @@ export * from './embed';
 export * from './commands';
 export * from './intents';
 export * from './ratio';
+export * from './isLetter';

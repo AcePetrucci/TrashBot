@@ -8,7 +8,9 @@ import {
   getQuotesRatioEvent,
   getQuotesHelpEvent,
   addQuoteEvent,
-  deleteQuoteEvent
+  addQuoteHelpEvent,
+  deleteQuoteEvent,
+  deleteQuoteHelpEvent
 } from '../events';
 
 
@@ -28,8 +30,10 @@ export const quotesLegacyCommands = (quoteAPIUrl: string) => {
   const { getQuotesHelp } = getQuotesHelpEvent();
 
   const { addQuote } = addQuoteEvent();
+  const { addQuoteHelp } = addQuoteHelpEvent();
 
   const { deleteQuote } = deleteQuoteEvent();
+  const { deleteQuoteHelp } = deleteQuoteHelpEvent();
 
 
   /**
@@ -54,8 +58,14 @@ export const quotesLegacyCommands = (quoteAPIUrl: string) => {
       case message.content.startsWith('!quoteratio'):
         return getQuoteRatio(message, client, _guildID);
 
+      case message.content.startsWith('!addquote -h'):
+        return addQuoteHelp(message, client);
+
       case message.content.startsWith('!addquote'):
         return addQuote(message, client, _guildID);
+
+      case message.content.startsWith('!dquote -h'):
+        return deleteQuoteHelp(message, client);
 
       case message.content.startsWith('!dquote'):
         return deleteQuote(message, client, _guildID);

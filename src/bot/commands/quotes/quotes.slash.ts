@@ -54,7 +54,7 @@ export const quotesCommandsSlash = () => {
       .setDescription('Shows a random quote from this server which contains the specified quote text')
       .addStringOption(option => option
         .setName('quote-text')
-        .setDescription('Quote Text')
+        .setDescription('Trash')
         .setRequired(true)
       )
     );
@@ -65,7 +65,7 @@ export const quotesCommandsSlash = () => {
   const addQuoteList = (cmd: SlashCommandBuilder) => {
     cmd.addSubcommand(subCommand => subCommand
       .setName('list')
-      .setDescription('Sends a DM showing the list of quotes from this server')
+      .setDescription('Sends a text file showing the list of quotes from this server')
     );
 
     return cmd;
@@ -96,7 +96,7 @@ export const quotesCommandsSlash = () => {
       .setDescription('Adds a quote to this server')
       .addStringOption(option => option
         .setName('quote-text')  
-        .setDescription('Quote Text')
+        .setDescription('This bot is truly trash')
         .setRequired(true)
       )
       .addUserOption(option => option

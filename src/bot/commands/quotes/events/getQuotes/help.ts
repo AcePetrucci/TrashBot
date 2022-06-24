@@ -2,14 +2,7 @@ import { EmbedFieldData } from 'discord.js';
 
 import { IClient, MessageInteraction } from "shared/models";
 
-import {
-  setEmbedHelpData,
-  formatEmbedHelp,
-} from 'shared/utils';
-
-import {
-  interactionHandler
-} from 'bot/handlers';
+import { helpHandler } from 'bot/handlers';
 
 
 /**
@@ -39,7 +32,7 @@ export const getQuotesHelpEvent = () => {
       Shows a specific quote based on its index.
 
       **!quote <quote_text>**
-      Ex: *!quote monkey*
+      Ex: *!quote trash*
       Shows a random quote which contains the specified quote text.
     `,
   };
@@ -47,27 +40,14 @@ export const getQuotesHelpEvent = () => {
 
   const getQuotesHelp = (interaction: MessageInteraction, client: IClient) => {
 
-    const { replyEmbed } = interactionHandler(interaction, client);
+    const { helpReply } = helpHandler(interaction, client);
 
-    /**
-     * Set Embed Help Data
-     */
-
-    const embedHelpData = setEmbedHelpData('Quote', embedField, client);
-
-
-    /**
-     * Format Embed Help Message
-     */
-
-    const embedHelpMessage = formatEmbedHelp(embedHelpData, client);
-
-
+    
     /**
      * Return Embed Help Message
      */
 
-    return replyEmbed(embedHelpMessage);
+    return helpReply(embedField, 'Quote');
   }
 
 

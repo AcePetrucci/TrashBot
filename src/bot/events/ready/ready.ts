@@ -35,7 +35,8 @@ export const readyEvent = (
         catchError(err => of(err))
       ).subscribe();
 
-      createSlashCommands();
+      if (process.env.DEV) { createSlashCommands(); }
+
       loadSlashCommands(client);
       loadLegacyCommands(client);
     })

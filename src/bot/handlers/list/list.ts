@@ -15,7 +15,7 @@ import { setEmbedData, formatEmbed } from 'shared/utils';
 
 import {
   interactionHandler
-} from '../interactionHandler';
+} from '../interaction';
 
 
 /**

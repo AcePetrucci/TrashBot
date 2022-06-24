@@ -113,3 +113,5 @@ dist
 .now
 
 package-lock.json
+
+public/**/*
