@@ -10,7 +10,7 @@ export const messageCreateEvent = (
 ) => {
 
   const literallyMe = process.env.ME;
-  const developmentMode = process.env.DEV;
+  const developmentMode = JSON.parse(process.env.DEV);
 
   /**
    * Client Message Create
