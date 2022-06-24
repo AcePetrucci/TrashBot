@@ -2,13 +2,13 @@
 
 A Discord Server bot I made for me and my friends, but even so, written like a real world application.
 
-This bot was made with Discord.js, Typescript, RxJS, Dependency Injection with Inversify and using Functional Reactive Programming, and consumes the [TrashBotAPI](https://github.com/AcePetrucci/TrashBotAPI)
+This bot was made with Discord.js, Typescript, RxJS and using Functional Reactive Programming.
+It also consumes the [TrashBotAPI](https://github.com/AcePetrucci/TrashBotAPI).
 
 ## Built With
- - Typescript 3.7
+ - Typescript 4.7
  - [Discord.js](https://github.com/discordjs/discord.js)
  - [RxJS](https://rxjs-dev.firebaseapp.com)
- - [InversifyJS](https://github.com/inversify/InversifyJS)
 
 ## Installation
 ```bash
