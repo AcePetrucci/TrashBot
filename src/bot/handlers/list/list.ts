@@ -108,7 +108,7 @@ export const listHandler = (
   ) => {
     const serverOwner = interaction.guild;
     const filePath = `${type.toLowerCase()}/${serverOwner.id}.quotes.txt`;
-    const serverPath = process.env.DEV
+    const serverPath = JSON.parse(process.env.DEV)
       ? 'http://localhost:4444/'
       : 'https://trashbotjs.herokuapp.com/';
   

@@ -8,7 +8,7 @@ export const interactionCreateEvent = (
 ) => {
 
   const literallyMe = process.env.ME;
-  const developmentMode = process.env.DEV;
+  const developmentMode = JSON.parse(process.env.DEV);
 
   /**
    * Client Interaction Create

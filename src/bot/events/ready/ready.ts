@@ -16,6 +16,8 @@ export const readyEvent = (
   client: IClient
 ) => {
 
+  const developmentMode = JSON.parse(process.env.DEV);
+
   const { setAndFetchServersConfig } = serversConfig();
   const { sendDoujin } = doujinSenderService();
 
@@ -25,7 +27,7 @@ export const readyEvent = (
   
   const clientReady = () => {
     client.on('ready', () => {
-      client.user.setActivity(process.env.DEV
+      client.user.setActivity(developmentMode
         ? 'Development Mode'  
         : '!trash or !trash -h'
       );
@@ -35,7 +37,7 @@ export const readyEvent = (
         catchError(err => of(err))
       ).subscribe();
 
-      if (process.env.DEV) { createSlashCommands(); }
+      if (developmentMode) { createSlashCommands(); }
 
       loadSlashCommands(client);
       loadLegacyCommands(client);
