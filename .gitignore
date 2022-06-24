@@ -114,4 +114,5 @@ dist
 
 package-lock.json
 
-public/**/*
+public/commands/*
+public/quotes/*
