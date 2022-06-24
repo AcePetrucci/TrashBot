@@ -47,7 +47,7 @@ export const getCustomCommandEvent = () => {
     } = customHandler(interaction, client);
 
     const commandName = options
-      ? options.find(({name}) => name === 'command-name').value as string
+      ? options.find(({name}) => name === 'name').value as string
       : interaction.content.split('!')[1];
 
     return deferEmbed('Retrieving command...').pipe(

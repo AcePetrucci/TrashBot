@@ -18,19 +18,19 @@ import {
 
 
 /**
- * Add Custom Command Event
+ * Delete Custom Command Event
  */
 
-export const addCustomCommandEvent = () => {
+export const deleteCustomCommandEvent = () => {
 
   const _quoteAPIUrl = process.env.QUOTE_API;
 
 
   /**
-   * Add Custom Command
+   * Delete Custom Command
    */
 
-  const addCustomCommand = (
+  const deleteCustomCommand = (
     interaction: MessageInteraction,
     client: IClient,
     guildID: string,
@@ -45,61 +45,49 @@ export const addCustomCommandEvent = () => {
 
     const { formatCustom } = customHandler(interaction, client);
 
-    const authorID = interaction.member.id;
-
     const commandName = options
-      ? options.find(({name}) => name === 'command-name').value as string
+      ? options.find(({name}) => name === 'name').value as string
       : interaction.content.split(' ')[1];
 
-    const commandText = options
-      ? options.find(({name}) => name === 'command-text').value as string
-      : interaction.content.split(' - ')[1];
-
     if (!commandName) {
-      return errorReply('Could not add the custom command. Maybe you messed up?');
+      return errorReply('Could not delete the custom command. Maybe you messed up?');
     }
 
-    return deferEmbed('Adding command...').pipe(
-      switchMap(_ => _addCustomCommand(commandName, commandText, guildID, authorID)),
+    return deferEmbed('Deleting command...').pipe(
+      switchMap(_ => _deleteCustomCommand(commandName, guildID)),
       map(command => formatCustom(command)),
       switchMap(commandEmbed => editReplyEmbed(commandEmbed)),
-      catchError(err => errorEditReply('Could not add the custom command. Maybe you messed up?'))
+      catchError(err => errorEditReply('Could not delete the custom command. Maybe you messed up?'))
     )
   }
 
 
   /**
-   * Add Custom Command And Return it
+   * Delete Custom Command And Return it
    */
 
-  const _addCustomCommand = (
+  const _deleteCustomCommand = (
     commandName: string,
-    commandText: string,
     guildID: string,
-    authorID: string
   ): Observable<ICustom> => {
     return from(axios.post(_quoteAPIUrl, {
       query: `mutation {
-        createCommand(command: {
-          authorID: "${authorID}",
+        deleteByNameCommand(
           guildID: "${guildID}",
-          commandName: "${commandName}",
-          commandText: "${commandText}"
-        }) {
-          commandName,
-          commandText,
-          createdAt,
+          commandName: "${commandName}"
+        ) {
+          commandName
         }
       }`,
     })).pipe(
-      map(({data: {data: {createCommand: command}}}) => command)
+      map(({data: {data: {deleteByNameCommand: command}}}) => command),
     );
   }
 
 
   /**
-   * Return Add Command
+   * Return Delete Command
    */
 
-  return { addCustomCommand };
+  return { deleteCustomCommand };
 }

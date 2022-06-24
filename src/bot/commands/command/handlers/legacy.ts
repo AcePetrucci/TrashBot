@@ -43,7 +43,7 @@ export const customLegacyCommands = (quoteAPIUrl: string) => {
       case message.content.startsWith('!dcommand'):
         return deleteCustomCommand(message, client, _guildID);
 
-      case message.content.startsWith('!custom -h'):
+      case message.content.startsWith('!command -h'):
         return getCustomCommandsHelp(message, client);
 
       default:

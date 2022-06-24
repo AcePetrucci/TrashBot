@@ -17,7 +17,7 @@ export const getCustomCommandsHelpEvent = () => {
       **!commandlist**
       Shows this server's list of commands as a .txt file.
 
-      **!custom -h**
+      **!command -h**
       Shows the quote help panel (this one right here).
 
       **!addcommand <command_name> - <command_text>**

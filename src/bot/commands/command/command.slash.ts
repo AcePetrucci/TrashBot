@@ -4,7 +4,7 @@ import { defer, from } from 'rxjs';
 
 import pipe from 'lodash/fp/pipe';
 
-import { customCommands } from './custom';
+import { customCommands } from './command';
 
 import { MessageInteraction } from "shared/models";
 
@@ -16,7 +16,7 @@ export const customCommandsSlash = () => {
 
   const addCustom = () => {
     return new SlashCommandBuilder()
-      .setName('custom')
+      .setName('command')
       .setDescription('Custom Commands');
   }
 
@@ -30,7 +30,7 @@ export const customCommandsSlash = () => {
       .setName('get')
       .setDescription('Shows the desired custom command')
       .addStringOption(option => option
-        .setName('command-name')
+        .setName('name')
         .setDescription('dance')
         .setRequired(true)
       )
@@ -58,12 +58,12 @@ export const customCommandsSlash = () => {
       .setName('add')
       .setDescription('Adds the desired custom command')
       .addStringOption(option => option
-        .setName('command-name')
+        .setName('name')
         .setDescription('dance')
         .setRequired(true)
       )
       .addStringOption(option => option
-        .setName('command-text')
+        .setName('text')
         .setDescription('https://dance.gif')
         .setRequired(true)
       )
@@ -82,7 +82,7 @@ export const customCommandsSlash = () => {
       .setName('delete')
       .setDescription('Deletes the desired custom command')
       .addStringOption(option => option
-        .setName('command-name')
+        .setName('name')
         .setDescription('dance')
         .setRequired(true)
       )
