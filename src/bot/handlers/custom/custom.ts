@@ -62,7 +62,7 @@ export const customHandler = (
     const paramsMap = new Map();
 
     textParams.forEach((textParam, textParamIndex) => {
-      paramsMap.set(textParam, commandParams.at(textParamIndex).replace(',', ''))
+      paramsMap.set(textParam, commandParams.at(textParamIndex).replace(',', '').trim())
     });
 
     const parsedCommand = command.commandText.split(' ')
@@ -144,15 +144,20 @@ export const customHandler = (
     embedData: IEmbedCustom,
     client: IClient
   ) => {
-    return new MessageEmbed()
+    let messageEmbed = new MessageEmbed()
       .setColor(0xec407a)
       .setAuthor({
         name: embedData.author,
         iconURL: embedData.authorAvatar ?? client.user.displayAvatarURL()
       })
       .setTitle(embedData.text)
-      .setImage(embedData.image)
       .setTimestamp(embedData.date);
+
+    if (embedData.image) {
+      messageEmbed = messageEmbed.setImage(embedData.image);
+    }
+
+    return messageEmbed;
   }
 
 

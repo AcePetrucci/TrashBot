@@ -52,7 +52,7 @@ export const getCustomCommandEvent = () => {
 
     const commandParams = options
       ? (options.find(({name}) => name === 'params')?.value as string)?.split(' ')
-      : interaction.content.split(' ').slice(1);
+      : interaction.content.split(' ').slice(1).join(' ').split(',');
 
     return deferEmbed('Retrieving command...').pipe(
       switchMap(_ => _fetchCommand(commandName, guildID)),
